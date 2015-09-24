@@ -6,14 +6,21 @@
 			restrict: 'E',
 			templateUrl: 'partials/components/chat.html',
 			controller: ['cartelSocket', '$scope', function(cartelSocket, $scope) {
-				cartelSocket.on('chat message', function(msg){
-					console.log("Received message " + msg);
-				});
+				
 				console.log("Loading chat");
 				console.log(cartelSocket);
 
-				$scope.sendChatMessage = function(msg) {
-					cartelSocket.emit('chat message', msg);
+				$scope.messages = ['hello', 'hello back', 'what?'];
+
+				cartelSocket.on('chat message', function(msg){
+					$scope.messages.push(msg);
+				});
+
+				$scope.sendChatMessage = function() {
+					if ($scope.currentMessage) {
+						cartelSocket.emit('chat message', $scope.currentMessage);
+						$scope.currentMessage = "";
+					}
 				}
 			}]
 		};

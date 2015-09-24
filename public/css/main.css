@@ -36,3 +36,15 @@ chat {
     width: 250px;
 	background-color: green;
 }
+
+chat ul { 
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0; 
+}
+chat ul li { 
+    padding: 5px 10px; 
+}
+chat ul li:nth-child(odd) {
+    background: #eee; 
+}
