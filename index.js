@@ -5,10 +5,11 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/pages/index.html');
 });
 
 app.use(express.static('public'));
+app.use(express.static('bower_components'));
 
 io.on('connection', function(socket){
   console.log(socket);
