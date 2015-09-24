@@ -8,6 +8,10 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/pages/index.html');
 });
 
+app.get('/test', function(req, res){
+  res.sendFile(__dirname + '/pages/test.html');
+});
+
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
 

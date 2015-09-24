@@ -1,16 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script src="js/main.js"></script>
-  </body>
+<head>
+	<title>Cartel</title>
+
+	<script src="/socket.io/socket.io.js"></script>
+
+	<script src="angular/angular.js"></script>
+	<script type="text/javascript" src="angular-socket-io/socket.min.js"></script>
+	
+
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/services.js"></script>
+
+</head>
+<body ng-app="cartel">
+	<header>
+	<h1>Cartel!</h1>
+	</header>
+	<main>
+	    <nav>nav</nav>
+	    <div class="main">Main</div>
+	    <chat></chat>
+	</main>
+	<footer>footer</footer>
+</body>
 </html>
