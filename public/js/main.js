@@ -5,7 +5,10 @@
 		return {
 			restrict: 'E',
 			templateUrl: 'partials/components/chat.html',
+			scope: {},
 			controller: ['cartelSocket', '$scope', function(cartelSocket, $scope) {
+
+				$scope.currentMessage = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);;
 				
 				console.log("Loading chat");
 				console.log(cartelSocket);
