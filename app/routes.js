@@ -1,50 +1,51 @@
 var express = require('express');
+var passport = require('passport');
+var Account = require('./models/user');
 var router = express.Router();
-var auth = require('./auth.js');
 
-function restrict(req, res, next) {
-	if (req.session.user) {
-		next();
-	} else {
-		req.session.error = 'Access denied!';
-		req.session.returnTo = req.path;
-		res.redirect('/login');
-	}
+function ensureAuthenticated (req, res, next) {
+  if (req.isAuthenticated()) {
+      return next();
+  }
+  req.session.redirectTo = req.path;
+  res.redirect('/login');
 }
 
-router.get('/', restrict, function(req, res){
+router.get('/', ensureAuthenticated, function(req, res){
   	res.sendfile('pages/index.html');
+});
+
+router.get('/register', function(req, res){
+  	res.sendfile('pages/register.html');
+});
+
+router.post('/register', function(req, res) {
+    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+        if (err) {
+            return res.render('register', { account : account });
+        }
+
+        passport.authenticate('local')(req, res, function () {
+            res.redirect('/');
+        });
+    });
 });
 
 router.get('/login', function(req, res){
   	res.sendfile('pages/login.html');
 });
 
-router.post('/login', function(req, res){
-	auth.authenticate(req.body.username, req.body.password, function(err, user){
-		if (user) {
-			// Regenerate session when signing in
-			// to prevent fixation
-			req.session.regenerate(function(){
-				// Store the user's primary key
-				// in the session store to be retrieved,
-				// or in this case the entire user object
-				req.session.user = user;
-				req.session.success = 'Authenticated as ' + user.name
-					+ ' click to <a href="/logout">logout</a>. '
-					+ ' You may now access <a href="/restricted">/restricted</a>.';
-				var returnTo = req.session.returnTo ? req.session.returnTo : '/';
-				delete req.session.returnTo;
-				//is authenticated ?
-				res.redirect(returnTo);
-			});
-		} else {
-			req.session.error = 'Authentication failed, please check your '
-				+ ' username and password.'
-				+ ' (use "tj" and "foobar")';
-			res.redirect('login');
-		}
-	});
+router.post('/login', passport.authenticate('local'), function(req, res) {
+    res.redirect(req.session.returnTo || '/');
+});
+
+router.get('/logout', function(req, res) {
+    req.logout();
+    res.redirect('/');
+});
+
+router.get('/ping', function(req, res){
+    res.status(200).send("pong!");
 });
 
 module.exports = router;

@@ -3,6 +3,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mongoose = require('mongoose');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -21,15 +23,23 @@ app.use(bodyParser.urlencoded({
 app.use(session({
 	secret: 'secret',
 	key: 'express.sid',
-	saveUninitialized: true,
-	resave: true
+	saveUninitialized: false,
+	resave: false
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Static things
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
 
 app.use('/', require('./app/routes.js'))
+
+// passport config
+var User = require('./app/models/user');
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 io.on('connection', function(socket){
 	console.log('a user connected');
