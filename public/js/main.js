@@ -8,9 +8,6 @@
 			scope: {},
 			controller: ['cartelSocket', '$scope', function(cartelSocket, $scope) {
 
-				// Make random user name
-				$scope.user = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-				
 				console.log("Loading chat");
 				console.log(cartelSocket);
 
@@ -22,10 +19,7 @@
 
 				$scope.sendChatMessage = function() {
 					if ($scope.currentMessage) {
-						cartelSocket.emit('chat message', {
-							user: $scope.user,
-							message: $scope.currentMessage
-						});
+						cartelSocket.emit('chat message', $scope.currentMessage);
 						$scope.currentMessage = "";
 					}
 				}

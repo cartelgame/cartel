@@ -12,6 +12,7 @@ function ensureAuthenticated (req, res, next) {
 }
 
 router.get('/', ensureAuthenticated, function(req, res){
+	console.log(req.user);
   	res.sendfile('pages/index.html');
 });
 

@@ -9,23 +9,27 @@ var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var ios = require('socket.io-express-session');
 
 var configDB = require('./config/database.js');
 
 mongoose.connect(configDB.url);
 
 // set up our express application
-app.use(morgan('dev')); // log every request to the console
+// app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
-app.use(session({
+
+var sessionMiddleware = session({
 	secret: 'secret',
 	key: 'express.sid',
-	saveUninitialized: false,
-	resave: false
-}));
+	saveUninitialized: true,
+	resave: true
+});
+
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -41,8 +45,22 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+io.use(ios(sessionMiddleware));
+
+io.use(function(socket, next) {
+	// deny connection if there is no valid session
+	// TODO: is this the right way to do this?
+	if (!socket.handshake.session.passport) {
+		next("Auth error");
+	} else {
+		next();
+	}
+});
+
 io.on('connection', function(socket){
-	console.log('a user connected');
+	console.log(socket.handshake.session);
+	var username = socket.handshake.session.passport.user;
+	console.log(username + ' connected');
 	io.emit('connection message', "User connected");
 
 	socket.on('disconnect', function(){
@@ -51,8 +69,11 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('chat message', function(msg){
-		console.log('message: ' + msg.user + " - " + msg.message);
-		io.emit('chat message', msg);
+		console.log('message: ' + username + " - " + msg.message);
+		io.emit('chat message', {
+			user: username,
+			message: msg
+		});
 	});
 });
 
