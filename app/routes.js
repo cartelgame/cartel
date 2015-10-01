@@ -45,8 +45,22 @@ router.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-router.get('/ping', function(req, res){
-    res.status(200).send("pong!");
+router.get('/servers', function(req, res){
+    console.log("Getting game servers for client");
+    res.json([
+        {
+            name: 'game1'
+        },
+        {
+            name: 'game2'
+        }
+    ]);
 });
+
+router.post('/game', function(req, res) {
+    console.log("Creating game");
+    console.log(req.body);
+});
+
 
 module.exports = router;

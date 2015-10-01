@@ -1,0 +1,8 @@
+<h1>Game Servers:</h1>
+<ul>
+	<li ng-repeat="server in servers">{{server.name}} <button>Join</button></li>
+</ul>
+<form method="post" action="/game">
+	<input type="text" name="name" value="MyGame">
+	<button>Create</button>
+</form>
