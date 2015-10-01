@@ -46,45 +46,43 @@ router.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-router.get('/servers', function(req, res){
-    console.log("Getting game servers for client");
+router.get('/games', ensureAuthenticated, function(req, res){
     Game.find({}, function(err, games) {
         res.json(games);
     });
-    // res.json([
-    //     {
-    //         name: 'game1'
-    //     },
-    //     {
-    //         name: 'game2'
-    //     }
-    // ]);
 });
 
-router.post('/game', function(req, res) {
+router.post('/game', ensureAuthenticated, function(req, res) {
     console.log("Creating game");
-    console.log(req.body);
 
-    var results = Game.findByName(req.body.name, function(err, games) {
-        console.log("Found games:");
-        console.log(games);
+    
+    var gameProperties = req.body;
+    console.log(gameProperties);
+    gameProperties.owner = req.session.passport.user;
+    console.log(gameProperties);
 
-        var gameProperties = req.body;
-        gameProperties.owner = req.session.passport.user;
+    Game.find(gameProperties, function(err, games) {
+        if (games && games.length) {
+            console.log(games);
+            // Game already exists
+            console.log("Game already exists");
+            res.status(400).send('Game already exists');
+        } else {
+            var myGame = new Game(gameProperties);
+            myGame.save(function(err, game) {
+                if (err) {
+                    throw err;
+                }
 
-        var myGame = new Game(gameProperties);
-        myGame.save(function(err, game) {
-            if (err) {
-                throw err;
-            }
+                console.log("Game saved");
 
-            console.log("Game saved");
+                console.log(game);
 
-            console.log(game);
-
-            res.redirect('/#/servers/' + game._id);
-            // res.json(game);
-        });
+                // TODO: should probably return a success message and allow the client to redirect the user
+                res.json(game);
+                // res.redirect('/#/games/' + game._id);
+            });
+        }
     });
 });
 

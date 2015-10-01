@@ -4,37 +4,44 @@
 	app.config(['$routeProvider',
 		function($routeProvider) {
 			$routeProvider.
-				when('/servers', {
-					templateUrl: 'partials/views/servers.html',
-					controller: 'ServerController'
+				when('/games', {
+					templateUrl: 'partials/views/games.html',
+					controller: 'GamesController'
 				}).
-				when('/servers/:gameId', {
+				when('/games/:gameId', {
 					templateUrl: 'partials/views/game.html',
 					controller: 'GameController'
 				}).
-				// when('/terms/:uprn', {
-				// 	templateUrl: 'partials/pages/terms.html',
-				// 	controller: 'TermsController'
-				// }).
-				// when('/property/:uprn', {
-				// 	templateUrl: 'partials/pages/property.html',
-				// 	controller: 'PropertyController'
-				// }).
 				otherwise({
-		        	redirectTo: '/servers'
+		        	redirectTo: '/games'
 		      	});
 		}]);
 
 
-	app.controller('ServerController', ['$scope', '$http', '$location', '$routeParams',
+	app.controller('GamesController', ['$scope', '$http', '$location', '$routeParams',
 		function($scope, $http, $location, $routeParams) {
-			$http.get('/servers')
+			$http.get('/games')
 				.then(function(response) {
 					$scope.games = response.data;
 				}, function(response) {
 					// TODO handle error
-					console.log("Error getting servers list");
+					console.log("Error getting games list");
 				});
+
+			$scope.createGame = function() {
+				if ($scope.gameName) {
+					$http.post('/game', { name: $scope.gameName })
+						.then(function(response) {
+							$scope.game = response.data;
+							console.log("Created game:");
+							console.log(response.data);
+							$location.path('games/' + response.data._id);
+						}, function(response) {
+							// TODO handle error
+							console.log("Error getting servers list - " + response.data);
+						});
+				}
+			}
 		}]);
 
 	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',

@@ -7,12 +7,10 @@
 	<tbody>
 		<tr ng-repeat="game in games">
 			<td>{{game.owner}}</td>
-			<td>{{game.name}}</td>
+			<td><a href="/#/games/{{game._id}}">{{game.name}}</a></td>
 		</tr>
 	</tbody>
 </table>
 
-<form method="post" action="/game">
-	<input type="text" name="name" value="MyGame">
-	<button>Create</button>
-</form>
+<input type="text"value="MyGame" ng-model="gameName">
+<button ng-click="createGame()">Create</button>
