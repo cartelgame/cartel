@@ -2,11 +2,10 @@
   "name": "cartel",
   "main": "index.js",
   "version": "0.0.1",
-  "homepage": "https://github.com/deadpassive/cartel",
+  "homepage": "https://github.com/cartelgame/cartel",
   "authors": [
     "deadpassive <mankillseverything@gmail.com>"
   ],
-  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
