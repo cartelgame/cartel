@@ -8,6 +8,10 @@
 					templateUrl: 'partials/views/servers.html',
 					controller: 'ServerController'
 				}).
+				when('/servers/:gameId', {
+					templateUrl: 'partials/views/game.html',
+					controller: 'GameController'
+				}).
 				// when('/terms/:uprn', {
 				// 	templateUrl: 'partials/pages/terms.html',
 				// 	controller: 'TermsController'
@@ -26,11 +30,16 @@
 		function($scope, $http, $location, $routeParams) {
 			$http.get('/servers')
 				.then(function(response) {
-					$scope.servers = response.data;
+					$scope.games = response.data;
 				}, function(response) {
 					// TODO handle error
 					console.log("Error getting servers list");
 				});
+		}]);
+
+	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',
+		function($scope, $http, $location, $routeParams) {
+			$scope.gameId = $routeParams.gameId;
 		}]);
 
 

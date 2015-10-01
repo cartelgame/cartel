@@ -1,6 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var Account = require('./models/user');
+var Game = require('./models/game');
 var router = express.Router();
 
 function ensureAuthenticated (req, res, next) {
@@ -47,19 +48,44 @@ router.get('/logout', function(req, res) {
 
 router.get('/servers', function(req, res){
     console.log("Getting game servers for client");
-    res.json([
-        {
-            name: 'game1'
-        },
-        {
-            name: 'game2'
-        }
-    ]);
+    Game.find({}, function(err, games) {
+        res.json(games);
+    });
+    // res.json([
+    //     {
+    //         name: 'game1'
+    //     },
+    //     {
+    //         name: 'game2'
+    //     }
+    // ]);
 });
 
 router.post('/game', function(req, res) {
     console.log("Creating game");
     console.log(req.body);
+
+    var results = Game.findByName(req.body.name, function(err, games) {
+        console.log("Found games:");
+        console.log(games);
+
+        var gameProperties = req.body;
+        gameProperties.owner = req.session.passport.user;
+
+        var myGame = new Game(gameProperties);
+        myGame.save(function(err, game) {
+            if (err) {
+                throw err;
+            }
+
+            console.log("Game saved");
+
+            console.log(game);
+
+            res.redirect('/#/servers/' + game._id);
+            // res.json(game);
+        });
+    });
 });
 
 

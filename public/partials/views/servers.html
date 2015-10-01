@@ -1,7 +1,17 @@
 <h1>Game Servers:</h1>
-<ul>
-	<li ng-repeat="server in servers">{{server.name}} <button>Join</button></li>
-</ul>
+<table>
+	<thead>
+		<th>User</th>
+		<th>Game</th>
+	</thead>
+	<tbody>
+		<tr ng-repeat="game in games">
+			<td>{{game.owner}}</td>
+			<td>{{game.name}}</td>
+		</tr>
+	</tbody>
+</table>
+
 <form method="post" action="/game">
 	<input type="text" name="name" value="MyGame">
 	<button>Create</button>
