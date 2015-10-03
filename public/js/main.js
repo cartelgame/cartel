@@ -47,6 +47,18 @@
 	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',
 		function($scope, $http, $location, $routeParams) {
 			$scope.gameId = $routeParams.gameId;
+
+			$http({
+				url: '/game',
+				method: 'GET',
+				params: { gameId: $scope.gameId }
+			})
+			.then(function(response) {
+				
+			}, function(response) {
+				// TODO handle error
+				console.log("Error getting game");
+			});
 		}]);
 
 

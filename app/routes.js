@@ -3,6 +3,7 @@ var passport = require('passport');
 var Account = require('./models/user');
 var Game = require('./models/game');
 var router = express.Router();
+var _ = require('lodash');
 
 function ensureAuthenticated (req, res, next) {
   if (req.isAuthenticated()) {
@@ -52,10 +53,53 @@ router.get('/games', ensureAuthenticated, function(req, res){
     });
 });
 
+// TODO: this should probably be done with sockets on connection
+router.get('/game', ensureAuthenticated, function(req, res) {
+    //  Get the game
+    var gameId = req.query.gameId;
+    console.log("Looking for game " + gameId);
+    Game.find({_id: gameId}, function(err, game) {
+        console.log("Found game");
+        console.log(game);
+
+        var user = req.session.passport.user;
+
+        if (user.name != game.owner) {
+            // Add the user to the players list
+            game.players = _.union(game.players, [user.name]);
+        }
+
+        // TODO: need to emit to the socket to say the player has joined?
+
+        res.json(game);
+    });
+
+    // TODO: Add the user to the game
+
+    // TODO: Return the game data
+});
+
+router.get('/leavegame', ensureAuthenticated, function(req, res) {
+    // TODO: Get the game
+
+    // TODO: Remove the user to the game
+
+    // TODO: Return success/failure
+});
+
+router.get('/kick', ensureAuthenticated, function(req, res) {
+    // TODO: Get the game
+
+    // TODO: Check if user is owner of game
+
+    // TODO: Remove the user from the game
+
+    // TODO: Return success/failure
+});
+
 router.post('/game', ensureAuthenticated, function(req, res) {
     console.log("Creating game");
 
-    
     var gameProperties = req.body;
     console.log(gameProperties);
     gameProperties.owner = req.session.passport.user;

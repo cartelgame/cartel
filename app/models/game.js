@@ -3,7 +3,9 @@ var Schema = mongoose.Schema;
 
 var Game = new Schema({
     name: { type: String, index: true },
-    owner: String
+    owner: String,
+    players: [String],
+    bannedPlayers = [String]
 });
 
 Game.statics.findByName = function(name, cb) {
