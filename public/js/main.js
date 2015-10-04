@@ -1,9 +1,14 @@
 (function() {
-	var app = angular.module('cartel', ['cartel.services', 'ngRoute']);
+	'use strict';
+	var app = angular.module('cartel', ['ngRoute']);
 
 	app.config(['$routeProvider',
 		function($routeProvider) {
 			$routeProvider.
+				when('/login', {
+					templateUrl: 'partials/views/loginView.html',
+					controller: 'LoginController'
+				}).
 				when('/games', {
 					templateUrl: 'partials/views/games.html',
 					controller: 'GamesController'
@@ -13,7 +18,7 @@
 					controller: 'GameController'
 				}).
 				otherwise({
-		        	redirectTo: '/games'
+		        	redirectTo: '/login'
 		      	});
 		}]);
 
@@ -54,12 +59,39 @@
 				params: { gameId: $scope.gameId }
 			})
 			.then(function(response) {
-				
+
 			}, function(response) {
 				// TODO handle error
 				console.log("Error getting game");
 			});
 		}]);
+
+	app.controller('LoginController', ['$location', 'AuthenticationService', 'FlashService',
+		function($location, AuthenticationService, FlashService) {
+			console.log("Login Controller");
+			// TODO: shouldn't we just use scope for this?
+			var vm = this;
+
+	        vm.login = login;
+
+	        (function initController() {
+	            // reset login status
+	            AuthenticationService.ClearCredentials();
+	        })();
+
+	        function login() {
+	            vm.dataLoading = true;
+	            AuthenticationService.Login(vm.username, vm.password, function (response) {
+	                if (response.success) {
+	                    AuthenticationService.SetCredentials(vm.username, vm.password);
+	                    $location.path('/');
+	                } else {
+	                    FlashService.Error(response.message);
+	                    vm.dataLoading = false;
+	                }
+	            });
+	        };
+		}])
 
 
 	app.directive('chat', function() {
@@ -67,20 +99,20 @@
 			restrict: 'E',
 			templateUrl: 'partials/components/chat.html',
 			scope: {},
-			controller: ['cartelSocket', '$scope', function(cartelSocket, $scope) {
+			controller: ['SocketService', '$scope', function(SocketService, $scope) {
 
 				console.log("Loading chat");
-				console.log(cartelSocket);
+				console.log(SocketService);
 
 				$scope.messages = [];
 
-				cartelSocket.on('chat message', function(msg){
+				SocketService.on('chat message', function(msg){
 					$scope.messages.push(msg);
 				});
 
 				$scope.sendChatMessage = function() {
 					if ($scope.currentMessage) {
-						cartelSocket.emit('chat message', $scope.currentMessage);
+						SocketService.emit('chat message', $scope.currentMessage);
 						$scope.currentMessage = "";
 					}
 				}

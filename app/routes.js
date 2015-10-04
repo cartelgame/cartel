@@ -6,14 +6,14 @@ var router = express.Router();
 var _ = require('lodash');
 
 function ensureAuthenticated (req, res, next) {
-  if (req.isAuthenticated()) {
-      return next();
-  }
-  req.session.redirectTo = req.path;
-  res.redirect('/login');
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    req.session.redirectTo = req.path;
+    res.redirect('/login');
 }
 
-router.get('/', ensureAuthenticated, function(req, res){
+router.get('/', function(req, res){
 	console.log(req.user);
   	res.sendfile('pages/index.html');
 });
@@ -47,14 +47,14 @@ router.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-router.get('/games', ensureAuthenticated, function(req, res){
+router.get('/games', function(req, res){
     Game.find({}, function(err, games) {
         res.json(games);
     });
 });
 
 // TODO: this should probably be done with sockets on connection
-router.get('/game', ensureAuthenticated, function(req, res) {
+router.get('/game', function(req, res) {
     //  Get the game
     var gameId = req.query.gameId;
     console.log("Looking for game " + gameId);
@@ -130,5 +130,11 @@ router.post('/game', ensureAuthenticated, function(req, res) {
     });
 });
 
+
+// NEW API ROUTES
+
+router.post('/api/authenticate', passport.authenticate('local'), function(req, res) {
+    res.sendStatus(200);
+});
 
 module.exports = router;
