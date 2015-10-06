@@ -3,8 +3,6 @@
 		.service('UserService', ['$http',
 			function($http) {
 
-				// private functions
-
 		        function handleSuccess(res) {
 		            return res.data;
 		        }

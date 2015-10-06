@@ -23,15 +23,7 @@ router.get('/register', function(req, res){
 });
 
 router.post('/register', function(req, res) {
-    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
-        if (err) {
-            return res.render('register', { account : account });
-        }
-
-        passport.authenticate('local')(req, res, function () {
-            res.redirect('/');
-        });
-    });
+    
 });
 
 router.get('/login', function(req, res){
@@ -45,12 +37,6 @@ router.post('/login', passport.authenticate('local'), function(req, res) {
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/');
-});
-
-router.get('/games', function(req, res){
-    Game.find({}, function(err, games) {
-        res.json(games);
-    });
 });
 
 // TODO: this should probably be done with sockets on connection
@@ -130,13 +116,79 @@ router.post('/game', ensureAuthenticated, function(req, res) {
     });
 });
 
-
 // NEW API ROUTES
 
 router.post('/api/authenticate', passport.authenticate('local'), function(req, res) {
     // TODO: how do we send a response for failed authentication?
     res.json({
         success: true
+    });
+});
+
+/**
+ * Create a user.
+ */
+router.post('/api/users', function(req, res){
+    // TODO: implement.
+    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+        if (err) {
+            // TODO: better error handling
+            return res.json({
+                success: false
+            });
+        }
+
+        passport.authenticate('local')(req, res, function () {
+            return res.json({
+                success: true
+            });
+        });
+    });
+});
+
+/**
+ * Get existing games.
+ */
+router.get('/api/games', function(req, res){
+    Game.find({}, function(err, games) {
+        res.json(games);
+    });
+});
+
+/**
+ * Create a game.
+ */
+router.post('/api/games', function(req, res){
+    // TODO: implement.
+    console.log("Creating game");
+
+    var gameProperties = req.body;
+    console.log(gameProperties);
+    gameProperties.owner = req.session.passport.user;
+    console.log(gameProperties);
+
+    Game.find(gameProperties, function(err, games) {
+        if (games && games.length) {
+            console.log(games);
+            // Game already exists
+            console.log("Game already exists");
+            res.status(400).send('Game already exists');
+        } else {
+            var myGame = new Game(gameProperties);
+            myGame.save(function(err, game) {
+                if (err) {
+                    throw err;
+                }
+
+                console.log("Game saved");
+
+                console.log(game);
+
+                // TODO: should probably return a success message and allow the client to redirect the user
+                res.json(game);
+                // res.redirect('/#/games/' + game._id);
+            });
+        }
     });
 });
 

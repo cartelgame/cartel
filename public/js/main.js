@@ -6,8 +6,12 @@
 		function($routeProvider) {
 			$routeProvider.
 				when('/login', {
-					templateUrl: 'partials/views/loginView.html',
+					templateUrl: 'partials/views/login.html',
 					controller: 'LoginController'
+				}).
+				when('/register', {
+					templateUrl: 'partials/views/register.html',
+					controller: 'RegisterController'
 				}).
 				when('/games', {
 					templateUrl: 'partials/views/games.html',
@@ -43,7 +47,24 @@
 	                }
 	            });
 	        };
-		}])
+		}]);
+
+	app.controller('RegisterController', ['$location', 'FlashService', '$scope', 'UserService',
+		function($location, FlashService, $scope, UserService) { 
+	        $scope.register = function() {
+	            $scope.dataLoading = true;
+	            UserService.Create($scope.user)
+	                .then(function (response) {
+	                    if (response.success) {
+	                        FlashService.Success('Registration successful', true);
+	                        $location.path('/login');
+	                    } else {
+	                        FlashService.Error(response.message);
+	                        $scope.dataLoading = false;
+	                    }
+	                });
+	        }
+		}]);
 
 	app.controller('GamesController', ['$scope', '$http', '$location', '$routeParams',
 		function($scope, $http, $location, $routeParams) {
