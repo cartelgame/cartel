@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	var app = angular.module('cartel', ['ngRoute']);
+	var app = angular.module('cartel', ['ngRoute', 'ngCookies', 'btford.socket-io', 'base64']);
 
 	app.config(['$routeProvider',
 		function($routeProvider) {
@@ -22,77 +22,71 @@
 		      	});
 		}]);
 
-
-	app.controller('GamesController', ['$scope', '$http', '$location', '$routeParams',
-		function($scope, $http, $location, $routeParams) {
-			$http.get('/games')
-				.then(function(response) {
-					$scope.games = response.data;
-				}, function(response) {
-					// TODO handle error
-					console.log("Error getting games list");
-				});
-
-			$scope.createGame = function() {
-				if ($scope.gameName) {
-					$http.post('/game', { name: $scope.gameName })
-						.then(function(response) {
-							$scope.game = response.data;
-							console.log("Created game:");
-							console.log(response.data);
-							$location.path('games/' + response.data._id);
-						}, function(response) {
-							// TODO handle error
-							console.log("Error getting servers list - " + response.data);
-						});
-				}
-			}
-		}]);
-
-	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',
-		function($scope, $http, $location, $routeParams) {
-			$scope.gameId = $routeParams.gameId;
-
-			$http({
-				url: '/game',
-				method: 'GET',
-				params: { gameId: $scope.gameId }
-			})
-			.then(function(response) {
-
-			}, function(response) {
-				// TODO handle error
-				console.log("Error getting game");
-			});
-		}]);
-
-	app.controller('LoginController', ['$location', 'AuthenticationService', 'FlashService',
-		function($location, AuthenticationService, FlashService) {
+	app.controller('LoginController', ['$location', 'AuthenticationService', 'FlashService', '$scope',
+		function($location, AuthenticationService, FlashService, $scope) {
 			console.log("Login Controller");
-			// TODO: shouldn't we just use scope for this?
-			var vm = this;
-
-	        vm.login = login;
 
 	        (function initController() {
 	            // reset login status
 	            AuthenticationService.ClearCredentials();
 	        })();
 
-	        function login() {
-	            vm.dataLoading = true;
-	            AuthenticationService.Login(vm.username, vm.password, function (response) {
+	        $scope.login = function() {
+	            $scope.dataLoading = true;
+	            AuthenticationService.Login($scope.username, $scope.password, function (response) {
 	                if (response.success) {
-	                    AuthenticationService.SetCredentials(vm.username, vm.password);
-	                    $location.path('/');
+	                    AuthenticationService.SetCredentials($scope.username, $scope.password);
+	                    $location.path('/games');
 	                } else {
 	                    FlashService.Error(response.message);
-	                    vm.dataLoading = false;
+	                    $scope.dataLoading = false;
 	                }
 	            });
 	        };
 		}])
 
+	app.controller('GamesController', ['$scope', '$http', '$location', '$routeParams',
+		function($scope, $http, $location, $routeParams) {
+			// $http.get('/games')
+			// 	.then(function(response) {
+			// 		$scope.games = response.data;
+			// 	}, function(response) {
+			// 		// TODO handle error
+			// 		console.log("Error getting games list");
+			// 	});
+
+			// $scope.createGame = function() {
+			// 	if ($scope.gameName) {
+			// 		$http.post('/game', { name: $scope.gameName })
+			// 			.then(function(response) {
+			// 				$scope.game = response.data;
+			// 				console.log("Created game:");
+			// 				console.log(response.data);
+			// 				$location.path('games/' + response.data._id);
+			// 			}, function(response) {
+			// 				// TODO handle error
+			// 				console.log("Error getting servers list - " + response.data);
+			// 			});
+			// 	}
+			// }
+		}]);
+
+	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',
+		function($scope, $http, $location, $routeParams) {
+			// $scope.gameId = $routeParams.gameId;
+
+			// $http({
+			// 	url: '/game',
+			// 	method: 'GET',
+			// 	params: { gameId: $scope.gameId }
+			// })
+			// .then(function(response) {
+
+			// }, function(response) {
+			// 	// TODO handle error
+			// 	console.log("Error getting game");
+			// });
+		}]);
 
 	app.directive('chat', function() {
 		return {
@@ -101,21 +95,21 @@
 			scope: {},
 			controller: ['SocketService', '$scope', function(SocketService, $scope) {
 
-				console.log("Loading chat");
-				console.log(SocketService);
+				// console.log("Loading chat");
+				// console.log(SocketService);
 
-				$scope.messages = [];
+				// $scope.messages = [];
 
-				SocketService.on('chat message', function(msg){
-					$scope.messages.push(msg);
-				});
+				// SocketService.on('chat message', function(msg){
+				// 	$scope.messages.push(msg);
+				// });
 
-				$scope.sendChatMessage = function() {
-					if ($scope.currentMessage) {
-						SocketService.emit('chat message', $scope.currentMessage);
-						$scope.currentMessage = "";
-					}
-				}
+				// $scope.sendChatMessage = function() {
+				// 	if ($scope.currentMessage) {
+				// 		SocketService.emit('chat message', $scope.currentMessage);
+				// 		$scope.currentMessage = "";
+				// 	}
+				// }
 			}]
 		};
 	});

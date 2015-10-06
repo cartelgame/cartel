@@ -134,7 +134,10 @@ router.post('/game', ensureAuthenticated, function(req, res) {
 // NEW API ROUTES
 
 router.post('/api/authenticate', passport.authenticate('local'), function(req, res) {
-    res.sendStatus(200);
+    // TODO: how do we send a response for failed authentication?
+    res.json({
+        success: true
+    });
 });
 
 module.exports = router;

@@ -1,6 +1,6 @@
 (function() {
 	angular.module('cartel')
-		.factory('UserService', ['$http',
+		.service('UserService', ['$http',
 			function($http) {
 
 				// private functions
@@ -15,29 +15,26 @@
 		            };
 		        }
 
-				var service = {};
-
 				// TODO: These are taken from an example but don't think we need them all
-		        service.GetAll = function GetAll() {
+		        this.GetAll = function GetAll() {
 		            return $http.get('/api/users').then(handleSuccess, handleError('Error getting all users'));
 		        };
-		        service.GetById = function GetById(id) {
+		        this.GetById = function GetById(id) {
 		            return $http.get('/api/users/' + id).then(handleSuccess, handleError('Error getting user by id'));
 		        };
-		        service.GetByUsername = function GetByUsername(username) {
+		        this.GetByUsername = function GetByUsername(username) {
 		            return $http.get('/api/users/' + username).then(handleSuccess, handleError('Error getting user by username'));
 		        };
-		        service.Create = function Create(user) {
+		        this.Create = function Create(user) {
 		            return $http.post('/api/users', user).then(handleSuccess, handleError('Error creating user'));
 		        };
-		        service.Update = function Update(user) {
+		        this.Update = function Update(user) {
 		            return $http.put('/api/users/' + user.id, user).then(handleSuccess, handleError('Error updating user'));
 		        };
-		        service.Delete = function Delete(id) {
+		        this.Delete = function Delete(id) {
 		            return $http.delete('/api/users/' + id).then(handleSuccess, handleError('Error deleting user'));
 		        };
 
-		        return service;
 			}
 		]);
 })();

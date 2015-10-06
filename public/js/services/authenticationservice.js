@@ -1,11 +1,9 @@
 (function() {
-	angular.module('cartel', ['ngCookies'])
+	angular.module('cartel')
 
-		.factory('AuthenticationService', ['$http', '$cookieStore', '$rootScope', '$timeout',
-			function() {
-				var service = {};
-
-		        service.Login = function Login(username, password, callback) {
+		.service('AuthenticationService', ['$http', '$cookieStore', '$rootScope', '$timeout', '$base64',
+			function($http, $cookieStore, $rootScope, $timeout, $base64) {
+		        this.Login = function Login(username, password, callback) {
 
 		            /* Dummy authentication for testing, uses $timeout to simulate api call
 		             ----------------------------------------------*/
@@ -31,8 +29,8 @@
 
 		        };
 
-		        service.SetCredentials = function SetCredentials(username, password) {
-		            var authdata = Base64.encode(username + ':' + password);
+		        this.SetCredentials = function SetCredentials(username, password) {
+		            var authdata = $base64.encode(username + ':' + password);
 
 		            $rootScope.globals = {
 		                currentUser: {
@@ -45,13 +43,11 @@
 		            $cookieStore.put('globals', $rootScope.globals);
 		        };
 
-		        service.ClearCredentials = function ClearCredentials() {
+		        this.ClearCredentials = function ClearCredentials() {
 		            $rootScope.globals = {};
 		            $cookieStore.remove('globals');
 		            $http.defaults.headers.common.Authorization = 'Basic ';
 		        };
-
-		        return service;
 			}
 		]);
 })();
