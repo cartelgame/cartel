@@ -15,7 +15,7 @@ function ensureAuthenticated (req, res, next) {
 
 router.get('/', function(req, res){
 	console.log(req.user);
-  	res.sendfile('pages/index.html');
+  	res.sendfile('index.html');
 });
 
 router.get('/register', function(req, res){
@@ -120,9 +120,8 @@ router.post('/game', ensureAuthenticated, function(req, res) {
 
 router.post('/api/authenticate', passport.authenticate('local'), function(req, res) {
     // TODO: how do we send a response for failed authentication?
-    res.json({
-        success: true
-    });
+    console.log("Logged in as " + req.body.username);
+    res.status(200).send();
 });
 
 /**

@@ -15,7 +15,7 @@
 				}).
 				when('/games', {
 					templateUrl: 'partials/views/games.html',
-					controller: 'GamesController'
+					controller: 'GameListController'
 				}).
 				when('/games/:gameId', {
 					templateUrl: 'partials/views/game.html',
@@ -43,6 +43,7 @@
 	                    $location.path('/games');
 	                } else {
 	                    FlashService.Error(response.message);
+	                    $scope.error = response.message;
 	                    $scope.dataLoading = false;
 	                }
 	            });
@@ -66,30 +67,34 @@
 	        }
 		}]);
 
-	app.controller('GamesController', ['$scope', '$http', '$location', '$routeParams',
-		function($scope, $http, $location, $routeParams) {
-			// $http.get('/games')
-			// 	.then(function(response) {
-			// 		$scope.games = response.data;
-			// 	}, function(response) {
-			// 		// TODO handle error
-			// 		console.log("Error getting games list");
-			// 	});
+	app.controller('GameListController', ['$scope', '$http', '$location', '$routeParams', 'GameService',
+		function($scope, $http, $location, $routeParams, GameService) {
+			GameService.GetAll()
+				.then(function (response) {
+					$scope.games = response;
+				});
 
-			// $scope.createGame = function() {
-			// 	if ($scope.gameName) {
-			// 		$http.post('/game', { name: $scope.gameName })
-			// 			.then(function(response) {
-			// 				$scope.game = response.data;
-			// 				console.log("Created game:");
-			// 				console.log(response.data);
-			// 				$location.path('games/' + response.data._id);
-			// 			}, function(response) {
-			// 				// TODO handle error
-			// 				console.log("Error getting servers list - " + response.data);
-			// 			});
-			// 	}
-			// }
+			$scope.createGame = function() {
+				if ($scope.gameName) {
+					GameService.Create($scope.gameName)
+						.then(function (game) {
+							console.log("Successfully created game");
+							$scope.game = game;
+							$location.path('games/' + game.data._id);
+						});
+
+					// $http.post('/game', { name: $scope.gameName })
+					// 	.then(function(response) {
+					// 		$scope.game = response.data;
+					// 		console.log("Created game:");
+					// 		console.log(response.data);
+					// 		$location.path('games/' + response.data._id);
+					// 	}, function(response) {
+					// 		// TODO handle error
+					// 		console.log("Error getting servers list - " + response.data);
+					// 	});
+				}
+			}
 		}]);
 
 	app.controller('GameController', ['$scope', '$http', '$location', '$routeParams',

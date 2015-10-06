@@ -23,9 +23,26 @@
 		            /* Use this for real authentication
 		             ----------------------------------------------*/
 		            $http.post('/api/authenticate', { username: username, password: password })
-		               .success(function (response) {
-		                   callback(response);
-		               });
+		               	.then(function success(response) {
+		                   	callback({
+		                   		success: true
+		                   	});
+		               	}, function failure(response) {
+		               		// Determine the reason for the failure
+		               		var reason = '';
+		               		switch (response.status) {
+		               			case 401:
+		               				reason = "Invalid username or password";
+		               				break;
+		               			default:
+		               				reason = "Some error happened";
+		               		}
+
+		               		callback({
+		               			succes: false,
+		               			message: reason
+		               		})
+		               	});
 
 		        };
 
