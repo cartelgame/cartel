@@ -120,7 +120,7 @@
 	app.directive('chat', function() {
 		return {
 			restrict: 'E',
-			templateUrl: 'partials/components/chat.html',
+			templateUrl: 'app/chat/chat.directive.html',
 			scope: {},
 			controller: ['SocketService', '$scope', function(SocketService, $scope) {
 

@@ -39,6 +39,7 @@ app.use(passport.session());
 // Static things
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
+app.use(express.static('client'));
 
 app.use('/', require('./app/routes.js'))
 
