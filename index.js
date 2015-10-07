@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+// TODO: remove this when tokens work - we won't be using sessions
 var sessionMiddleware = session({
 	secret: 'secret',
 	key: 'express.sid',
@@ -32,6 +33,7 @@ var sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());
+// TODO: remove this when tokens work - we won't be using sessions
 app.use(passport.session());
 
 // Static things
@@ -46,11 +48,13 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// TODO: remove this when tokens work - we won't be using sessions
 io.use(ios(sessionMiddleware));
 
 io.use(function(socket, next) {
 	// deny connection if there is no valid session
 	// TODO: is this the right way to do this?
+	// TODO: remove this when tokens work - we won't be using sessions
 	if (!socket.handshake.session.passport) {
 		next("Auth error");
 	} else {
