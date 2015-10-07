@@ -69,19 +69,22 @@ router.use(function(req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
     if (token) {
-        jwt.verity(token, securityConfig.secret, function(err, decoded) {
+        jwt.verify(token, securityConfig.secret, function(err, decoded) {
             if (err) {
+                console.log("Failed to authenticate token " + token);
                 return res.json({
                     success: false,
                     message: 'Failed to authenticate token.'
                 });
             } else {
+                console.log("Token OK");
                 req.decoded = decoded;
                 // TODO: attach the user to the request
                 next();
             }
         });
     } else {
+        console.log("No token provided");
         return res.status(403).send({
             success: false,
             message: 'No token provided.'
