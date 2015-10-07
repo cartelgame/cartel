@@ -4,57 +4,24 @@ var Account = require('./models/user');
 var Game = require('./models/game');
 var router = express.Router();
 var _ = require('lodash');
+var jwt    = require('jsonwebtoken'); 
+var securityConfig = require('../config/security');
 
 function ensureAuthenticated (req, res, next) {
-  if (req.isAuthenticated()) {
-      return next();
-  }
-  req.session.redirectTo = req.path;
-  res.redirect('/login');
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    req.session.redirectTo = req.path;
+    res.redirect('/login');
 }
 
-router.get('/', ensureAuthenticated, function(req, res){
+router.get('/', function(req, res){
 	console.log(req.user);
-  	res.sendfile('pages/index.html');
+  	res.sendfile('index.html');
 });
 
-router.get('/register', function(req, res){
-  	res.sendfile('pages/register.html');
-});
-
-router.post('/register', function(req, res) {
-    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
-        if (err) {
-            return res.render('register', { account : account });
-        }
-
-        passport.authenticate('local')(req, res, function () {
-            res.redirect('/');
-        });
-    });
-});
-
-router.get('/login', function(req, res){
-  	res.sendfile('pages/login.html');
-});
-
-router.post('/login', passport.authenticate('local'), function(req, res) {
-    res.redirect(req.session.returnTo || '/');
-});
-
-router.get('/logout', function(req, res) {
-    req.logout();
-    res.redirect('/');
-});
-
-router.get('/games', ensureAuthenticated, function(req, res){
-    Game.find({}, function(err, games) {
-        res.json(games);
-    });
-});
-
-// TODO: this should probably be done with sockets on connection
-router.get('/game', ensureAuthenticated, function(req, res) {
+// TODO: make this a rest call
+router.get('/game', function(req, res) {
     //  Get the game
     var gameId = req.query.gameId;
     console.log("Looking for game " + gameId);
@@ -79,25 +46,87 @@ router.get('/game', ensureAuthenticated, function(req, res) {
     // TODO: Return the game data
 });
 
-router.get('/leavegame', ensureAuthenticated, function(req, res) {
-    // TODO: Get the game
+// NEW API ROUTES
 
-    // TODO: Remove the user to the game
+router.post('/api/authenticate', passport.authenticate('local'), function(req, res) {
+    // TODO: how do we send a response for failed authentication?
+    console.log("Logged in as " + req.body.username);
+    
+    var token = jwt.sign(req.user.username, securityConfig.secret, {
+        expiresInMinutes: 1440 // expires in 24 hrs
+    });
+    
+    console.log("Generated token " + token);
 
-    // TODO: Return success/failure
+    res.json({
+        success: true,
+        token: token
+    })
 });
 
-router.get('/kick', ensureAuthenticated, function(req, res) {
-    // TODO: Get the game
+// Protected the api with token authentication
+router.use(function(req, res, next) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-    // TODO: Check if user is owner of game
-
-    // TODO: Remove the user from the game
-
-    // TODO: Return success/failure
+    if (token) {
+        jwt.verify(token, securityConfig.secret, function(err, decoded) {
+            if (err) {
+                console.log("Failed to authenticate token " + token);
+                return res.json({
+                    success: false,
+                    message: 'Failed to authenticate token.'
+                });
+            } else {
+                console.log("Token OK");
+                req.decoded = decoded;
+                // TODO: attach the user to the request
+                next();
+            }
+        });
+    } else {
+        console.log("No token provided");
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        })
+    }
 });
 
-router.post('/game', ensureAuthenticated, function(req, res) {
+/**
+ * Create a user.
+ */
+router.post('/api/users', function(req, res){
+    // TODO: implement.
+    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+        if (err) {
+            // TODO: better error handling
+            return res.json({
+                success: false
+            });
+        }
+
+        passport.authenticate('local')(req, res, function () {
+            return res.json({
+                success: true
+            });
+        });
+    });
+});
+
+/**
+ * Get existing games.
+ */
+router.get('/api/games', function(req, res){
+    Game.find({}, function(err, games) {
+        res.json(games);
+    });
+});
+
+/**
+ * Create a game.
+ */
+router.post('/api/games', function(req, res){
+    // TODO: implement.
     console.log("Creating game");
 
     var gameProperties = req.body;
@@ -129,6 +158,5 @@ router.post('/game', ensureAuthenticated, function(req, res) {
         }
     });
 });
-
 
 module.exports = router;

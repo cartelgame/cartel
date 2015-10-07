@@ -5,7 +5,7 @@ var Game = new Schema({
     name: { type: String, index: true },
     owner: String,
     players: [String],
-    bannedPlayers = [String]
+    bannedPlayers: [String]
 });
 
 Game.statics.findByName = function(name, cb) {
