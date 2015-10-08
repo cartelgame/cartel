@@ -14,13 +14,24 @@
 
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 
-	<script type="text/javascript" src="js/main.js"></script>
-	<script type="text/javascript" src="app/socket/socket.service.js"></script>
+	<!-- TODO: minify and merge JS files -->
+	<script type="text/javascript" src="app/app.module.js"></script>
 	<script type="text/javascript" src="app/flash.service.js"></script>
-	<script type="text/javascript" src="app/user/user.service.js"></script>
-	<script type="text/javascript" src="app/game/game.service.js"></script>
+
+	<script type="text/javascript" src="app/auth/login.controller.js"></script>
+	<script type="text/javascript" src="app/auth/register.controller.js"></script>
 	<script type="text/javascript" src="app/auth/authentication.service.js"></script>
 	<script type="text/javascript" src="app/auth/tokeninterceptor.service.js"></script>
+
+	<script type="text/javascript" src="app/game/gamelist.controller.js"></script>
+	<script type="text/javascript" src="app/game/game.controller.js"></script>
+	<script type="text/javascript" src="app/game/game.service.js"></script>
+
+	<script type="text/javascript" src="app/socket/socket.service.js"></script>
+	
+	<script type="text/javascript" src="app/user/user.service.js"></script>
+	
+	<script type="text/javascript" src="app/char/chat.directive.js"></script>
 </head>
 <body ng-app="cartel" ng-cloak>
 	<header>

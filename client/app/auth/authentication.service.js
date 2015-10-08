@@ -1,9 +1,9 @@
 (function() {
 	angular.module('cartel')
+		.service('AuthenticationService', ['$http', '$cookieStore', '$rootScope', '$timeout', '$base64', '$localStorage', AuthenticationService]);
 
-		.service('AuthenticationService', ['$http', '$cookieStore', '$rootScope', '$timeout', '$base64', '$localStorage',
-			function($http, $cookieStore, $rootScope, $timeout, $base64, $localStorage) {
-		        this.Login = function(username, password, callback) {
+	function AuthenticationService($http, $cookieStore, $rootScope, $timeout, $base64, $localStorage) {
+		this.Login = function(username, password, callback) {
 
 		            $http.post('/api/authenticate', { username: username, password: password })
 		               	.then(function success(response) {
@@ -51,6 +51,5 @@
 		            $cookieStore.remove('globals');
 		            $http.defaults.headers.common.Authorization = 'Basic ';
 		        };
-			}
-		]);
+	}
 })();

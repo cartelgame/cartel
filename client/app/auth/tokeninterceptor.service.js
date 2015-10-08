@@ -1,13 +1,11 @@
 (function() {
 	angular.module('cartel')
-		.service('TokenInterceptorService', ['$localStorage',
-			function($localStorage) {
+		.service('TokenInterceptorService', ['$localStorage', TokenIntercepterService]);
 
-		        this.request = function(config) {
-		        	config.headers['x-access-token'] = $localStorage.token;
-		        	return config;
-		        };
-
-			}
-		]);
+	function TokenIntercepterService($localStorage) {
+        this.request = function(config) {
+        	config.headers['x-access-token'] = $localStorage.token;
+        	return config;
+        };
+	}
 })();
