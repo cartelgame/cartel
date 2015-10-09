@@ -9,6 +9,7 @@
 		               	.then(function success(response) {
 		               		// Store the token
 		               		$localStorage.token = response.data.token;
+		               		$localStorage.user = username;
 
 		                   	callback({
 		                   		success: true

@@ -1,20 +1,21 @@
 (function() {
 	angular.module('cartel')
-		.controller('GameController', ['$scope', '$http', '$location', '$routeParams', GameController]);
+		.controller('GameController', ['$scope', 'GameService', '$location', '$routeParams', '$localStorage', GameController]);
 
-	function GameController($scope, $http, $location, $routeParams) {
-		// $scope.gameId = $routeParams.gameId;
+	function GameController($scope, GameService, $location, $routeParams, $localStorage) {
+		$scope.gameId = $routeParams.gameId;
 
-		// $http({
-		// 	url: '/game',
-		// 	method: 'GET',
-		// 	params: { gameId: $scope.gameId }
-		// })
-		// .then(function(response) {
+		GameService.GetById($scope.gameId)
+			.then(function(game) {
+				$scope.game = game;
+				$scope.isOwner = (game.owner == $localStorage.user);
+			});
 
-		// }, function(response) {
-		// 	// TODO handle error
-		// 	console.log("Error getting game");
-		// });
+		$scope.deleteGame = function() {
+			GameService.Delete($scope.game._id)
+				.then(function(response) {
+					$location.path('games');
+				});
+		}
 	}
 })();

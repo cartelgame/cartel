@@ -12,21 +12,11 @@
 			if ($scope.gameName) {
 				GameService.Create($scope.gameName)
 					.then(function (game) {
+						console.log(game);
 						console.log("Successfully created game");
 						$scope.game = game;
-						$location.path('games/' + game.data._id);
+						$location.path('games/' + game._id);
 					});
-
-				// $http.post('/game', { name: $scope.gameName })
-				// 	.then(function(response) {
-				// 		$scope.game = response.data;
-				// 		console.log("Created game:");
-				// 		console.log(response.data);
-				// 		$location.path('games/' + response.data._id);
-				// 	}, function(response) {
-				// 		// TODO handle error
-				// 		console.log("Error getting servers list - " + response.data);
-				// 	});
 			}
 		}
 	}
