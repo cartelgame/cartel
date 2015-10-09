@@ -42,6 +42,7 @@ app.use(express.static('bower_components'));
 app.use(express.static('client'));
 
 app.use('/', require('./app/routes.js'))
+app.use('/api', require('./app/apiRoutes.js'))
 
 // passport config
 var User = require('./app/models/user');

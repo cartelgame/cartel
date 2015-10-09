@@ -12,7 +12,7 @@
 						controller: 'RegisterController'
 					})
 					.when('/games', {
-						templateUrl: 'partials/views/games.html',
+						templateUrl: 'app/game/gamelist.view.html',
 						controller: 'GameListController'
 					})
 					.when('/games/:gameId', {
