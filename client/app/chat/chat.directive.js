@@ -6,24 +6,22 @@
 		return {
 			restrict: 'E',
 			templateUrl: 'app/chat/chat.directive.html',
-			scope: {},
 			controller: ['SocketService', '$scope', function(SocketService, $scope) {
+				console.log("Loading chat");
+				console.log(SocketService);
 
-				// console.log("Loading chat");
-				// console.log(SocketService);
+				$scope.messages = [];
 
-				// $scope.messages = [];
+				SocketService.on('chat message', function(msg){
+					$scope.messages.push(msg);
+				});
 
-				// SocketService.on('chat message', function(msg){
-				// 	$scope.messages.push(msg);
-				// });
-
-				// $scope.sendChatMessage = function() {
-				// 	if ($scope.currentMessage) {
-				// 		SocketService.emit('chat message', $scope.currentMessage);
-				// 		$scope.currentMessage = "";
-				// 	}
-				// }
+				$scope.sendChatMessage = function() {
+					if ($scope.currentMessage) {
+						SocketService.emit('chat message', $scope.currentMessage);
+						$scope.currentMessage = "";
+					}
+				}
 			}]
 		};
 	}

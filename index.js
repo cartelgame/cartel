@@ -53,21 +53,10 @@ passport.deserializeUser(User.deserializeUser());
 // TODO: remove this when tokens work - we won't be using sessions
 io.use(ios(sessionMiddleware));
 
-io.use(function(socket, next) {
-	// deny connection if there is no valid session
-	// TODO: is this the right way to do this?
-	// TODO: remove this when tokens work - we won't be using sessions
-	if (!socket.handshake.session.passport) {
-		next("Auth error");
-	} else {
-		next();
-	}
-});
-
 io.on('connection', function(socket){
 	console.log(socket.handshake.session);
-	var username = socket.handshake.session.passport.user;
-	console.log(username + ' connected');
+	// var username = socket.handshake.session.passport.user;
+	console.log(socket.handshake.session);
 	io.emit('connection message', "User connected");
 
 	socket.on('disconnect', function(){
@@ -76,12 +65,16 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('chat message', function(msg){
-		console.log('message: ' + username + " - " + msg);
+		// console.log('message: ' + username + " - " + msg);
 		io.emit('chat message', {
-			user: username,
+			user: 'test', // TODO: get proper username
 			message: msg
 		});
 	});
+
+	socket.on('joined', function(user) {
+		console.log(user + 'joined');
+	})
 });
 
 http.listen(3000, function(){

@@ -53,7 +53,7 @@ router.route('/authenticate')
         console.log("Logged in as " + req.body.username);
         
         var token = jwt.sign(req.user.username, securityConfig.secret, {
-            expiresInMinutes: 1440 // expires in 24 hrs
+            expiresIn: 86400 // expires in 24 hrs
         });
         
         console.log("Generated token " + token);
@@ -108,8 +108,8 @@ router.route('/games')
 
         var gameData = req.body;
         console.log(gameData);
-        gameData.owner = req.session.passport.user;
-        gameData.players = [req.session.passport.user];
+        gameData.owner = req.user;
+        gameData.players = [req.user];
         console.log(gameData);
 
         Game.find(gameData, function(err, games) {
@@ -172,7 +172,7 @@ router.route('/games/:game_id')
     })
 
     .delete(function(req, res) {
-        Game.findOne({_id: gameId}).remove().exec();
+        Game.findOne({_id: req.params.game_id}).remove().exec();
         res.status(200).send("Game deleted successfully");
     });
 
