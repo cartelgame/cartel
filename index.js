@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -9,7 +8,7 @@ var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var ios = require('socket.io-express-session');
+
 
 var configDB = require('./config/database.js');
 
@@ -50,32 +49,8 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// TODO: remove this when tokens work - we won't be using sessions
-io.use(ios(sessionMiddleware));
-
-io.on('connection', function(socket){
-	console.log(socket.handshake.session);
-	// var username = socket.handshake.session.passport.user;
-	console.log(socket.handshake.session);
-	io.emit('connection message', "User connected");
-
-	socket.on('disconnect', function(){
-		console.log('user disconnected');
-		io.emit('connection message', "User disconnected");
-	});
-
-	socket.on('chat message', function(msg){
-		// console.log('message: ' + username + " - " + msg);
-		io.emit('chat message', {
-			user: 'test', // TODO: get proper username
-			message: msg
-		});
-	});
-
-	socket.on('joined', function(user) {
-		console.log(user + 'joined');
-	})
-});
+// Setup socket stuff
+require('./app/sockets')(http);
 
 http.listen(3000, function(){
   	console.log('listening on *:3000');

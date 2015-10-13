@@ -1,7 +1,7 @@
 <div>
 	GameID = {{gameId}}
 	<ul>
-		<li ng-repeat="message in messages track by $index"><b>{{message.user}}:</b> {{message.message}}</li>
+		<li ng-repeat="message in game.chatHistory track by $index"><b>{{message.name}}:</b> {{message.message}}</li>
 	</ul>
 	<input type="text" ng-model="currentMessage">
 	<button ng-click="sendChatMessage()">TEST</button>

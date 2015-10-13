@@ -8,15 +8,6 @@ var jwt    = require('jsonwebtoken');
 var securityConfig = require('../config/security');
 
 function ensureAuthenticated (req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    req.session.redirectTo = req.path;
-    res.redirect('/login');
-}
-
-// Protected the api with token authentication
-router.use(function(req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
     if (token) {
@@ -41,7 +32,35 @@ router.use(function(req, res, next) {
             message: 'No token provided.'
         })
     }
-});
+}
+
+// Protected the api with token authentication
+// router.use(function(req, res, next) {
+//     var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+//     if (token) {
+//         jwt.verify(token, securityConfig.secret, function(err, decoded) {
+//             if (err) {
+//                 console.log("Failed to authenticate token " + token);
+//                 return res.json({
+//                     success: false,
+//                     message: 'Failed to authenticate token.'
+//                 });
+//             } else {
+//                 console.log("Token OK");
+//                 // TODO: attach the user to the request
+//                 req.user = decoded;
+//                 next();
+//             }
+//         });
+//     } else {
+//         console.log("No token provided");
+//         return res.status(403).send({
+//             success: false,
+//             message: 'No token provided.'
+//         })
+//     }
+// });
 
 
 // NEW API ROUTES
@@ -68,7 +87,7 @@ router.route('/users')
 
     // Get all users
     // TODO: dev only
-    .get(function(req, res){
+    .get(ensureAuthenticated, function(req, res){
         User.find({}, function(err, games) {
             res.json(games);
         });
@@ -95,14 +114,14 @@ router.route('/users')
 router.route('/games')
 
     // Get all games
-    .get(function(req, res){
+    .get(ensureAuthenticated, function(req, res){
         Game.find({}, function(err, games) {
             res.json(games);
         });
     })
 
     // Create a game
-    .post(function(req, res){
+    .post(ensureAuthenticated, function(req, res){
         // TODO: implement.
         console.log("Creating game");
 
@@ -135,7 +154,7 @@ router.route('/games')
 router.route('/games/:game_id')
 
     // Get a specific game
-    .get(function(req, res) {
+    .get(ensureAuthenticated, function(req, res) {
         //  Get the game
         var gameId = req.params.game_id;
         console.log("Looking for game " + gameId);
@@ -171,7 +190,7 @@ router.route('/games/:game_id')
         });
     })
 
-    .delete(function(req, res) {
+    .delete(ensureAuthenticated, function(req, res) {
         Game.findOne({_id: req.params.game_id}).remove().exec();
         res.status(200).send("Game deleted successfully");
     });
