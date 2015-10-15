@@ -48,3 +48,8 @@ chat ul li {
 chat ul li:nth-child(odd) {
     background: #eee; 
 }
+
+#welcomeTextDiv, #welcomeTextDiv h1, #welcomeTextDiv h2{
+    display: inline;
+
+}

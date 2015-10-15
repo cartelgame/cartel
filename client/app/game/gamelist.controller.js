@@ -1,8 +1,11 @@
 (function() {
 	angular.module('cartel')
-		.controller('GameListController', ['$scope', '$http', '$location', '$routeParams', 'GameService', GameListController]);
+		.controller('GameListController', ['$scope', '$http', '$location', '$routeParams', 'GameService','$localStorage', GameListController]);
 
-	function GameListController($scope, $http, $location, $routeParams, GameService) {
+	function GameListController($scope, $http, $location, $routeParams, GameService,$localStorage) {
+
+		$scope.userName = $localStorage.user;
+		
 		GameService.GetAll()
 			.then(function (response) {
 				$scope.games = response;

@@ -9,7 +9,7 @@
                 .then(function (response) {
                     if (response.success) {
                         FlashService.Success('Registration successful', true);
-                        $location.path('/login');
+                        $location.path('/games');
                     } else {
                         FlashService.Error(response.message);
                         $scope.dataLoading = false;
