@@ -14,23 +14,17 @@ function ensureAuthenticated (req, res, next) {
         jwt.verify(token, securityConfig.secret, function(err, decoded) {
             if (err) {
                 console.log("Failed to authenticate token " + token);
-                return res.json({
-                    success: false,
-                    message: 'Failed to authenticate token.'
-                });
+                return res.status(403).send('Failed to authenticate token');
             } else {
                 console.log("Token OK");
-                // TODO: attach the user to the request
+                // Attach the user to the request
                 req.user = decoded;
                 next();
             }
         });
     } else {
         console.log("No token provided");
-        return res.status(403).send({
-            success: false,
-            message: 'No token provided.'
-        })
+        return res.status(403).send('No token provided.');
     }
 }
 
@@ -94,9 +88,11 @@ router.route('/games')
         console.log("Creating game");
 
         var gameData = req.body;
-        console.log(gameData);
         gameData.owner = req.user;
-        gameData.players = [req.user];
+        gameData.players = [{
+            name: req.user,
+            ready: false
+        }];
         console.log(gameData);
 
         Game.find(gameData, function(err, games) {
@@ -144,8 +140,10 @@ router.route('/games/:game_id')
 
             if (user != game.owner) {
                 // Add the user to the players list
-                game.players = _.union(game.players, [user]);
-
+                if (!_.find(game.players, {name: user})) {
+                    game.players.push({name: user, ready: false});
+                }
+                
                 // Persist the new players list
                 Game.update({_id: game._id}, {players: game.players}, function(err, game) {
                     console.log("Game updated");

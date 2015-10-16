@@ -27,6 +27,7 @@ app.use(express.static('public'));
 app.use(express.static('bower_components'));
 app.use(express.static('client'));
 
+// Routes
 app.use('/', require('./app/routes.js'))
 app.use('/api', require('./app/apiRoutes.js'))
 

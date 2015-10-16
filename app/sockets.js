@@ -8,29 +8,31 @@ module.exports = function(http) {
 	var io = require('socket.io')(http);
 
 	// set authorization for socket.io
+	// TODO: figure out how to send messages only to players in game
 	io.sockets
 		.on('connection', socketioJwt.authorize({
 		    secret: securityConfig.secret,
 		    timeout: 15000 // 15 seconds to send the authentication message
 		})).on('authenticated', function(socket) {
 		    //this socket is authenticated, we are good to handle more events from it.
-		    console.log('hello! ' + socket.decoded_token);
 
-		    socket.on('joined', function(user) {
-		    	console.log("%s joined", user);
+		    socket.on('join', function(gameId) {
+		    	console.log("%s joined", socket.decoded_token);
+		    	// TODO: check whether user is allowed in the game
+		    	socket.room = gameId;
+		    	socket.join(gameId);
 		    });
 
-		    socket.on('chat message', function(message) {
+		    socket.on('chat-message', function(message) {
 		    	console.log(message);
-		    	// TODO: get the game
-		    	// TODO: add message to game
 		    	var gameMessage = {
 		    		name: socket.decoded_token, 
 		    		message: message.message
 		    	}
+		    	// Update the game object to add the new message
 		    	Game.findByIdAndUpdate(
 		    		message.game,
-		    		{$push: {chatHistory: {name: socket.decoded_token, message: message.message}}},
+		    		{$push: {chatHistory: gameMessage}},
 		    		{new: true},
 		    		function(err, model) {
 		    			if (err) {
@@ -39,9 +41,34 @@ module.exports = function(http) {
 		    			}
 		    			console.log(model.chatHistory);
 		    			// Emit the message to everyone else
-		    			io.emit('chat message', _.last(model.chatHistory));
+		    			socket.broadcast.to(socket.room).emit('chat-message', _.last(model.chatHistory));
 		    		}
 		    	);
+		    });
+
+		    socket.on('player-ready', function(data) {
+		    	console.log("%s %s", socket.decoded_token, data.ready ? 'ready' : 'not ready');
+
+		    	var username = socket.decoded_token;
+
+		    	Game.findOneAndUpdate(
+		    		{_id: data.game, 'players.name': username},
+		    		{'$set': {
+		    			'players.$.ready': data.ready // TODO: why do I have to invert this!?!?!
+		    		}},
+		    		{new: true},
+		    		function(err, game) {
+		    			console.log(game.players);
+
+		    			// Tell other players we've changed our state
+				    	socket.broadcast.to(socket.room).emit('player-ready', {
+				    		name: socket.decoded_token,
+				    		ready: data.ready
+				    	});
+		    		}
+		    	);
+
+		    	
 		    });
 		});
 }

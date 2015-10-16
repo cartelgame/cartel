@@ -16,7 +16,7 @@
 					.then(function(socket) {
 						console.log('Done authenticating socket in Chat Controller');
 
-						SocketService.socket.on('chat message', function(msg){
+						SocketService.socket.on('chat-message', function(msg){
 							$scope.messages.push(msg);
 							$scope.game.chatHistory.push(msg);
 						});
@@ -24,7 +24,7 @@
 						$scope.sendChatMessage = function() {
 							if ($scope.currentMessage) {
 								// Send chat message linked to specific game
-								SocketService.socket.emit('chat message', {
+								SocketService.socket.emit('chat-message', {
 									message: $scope.currentMessage,
 									game: $scope.gameId
 								});

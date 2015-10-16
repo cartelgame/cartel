@@ -4,8 +4,10 @@
 <div>
 	Players:
 	<ul>
-		<li ng-repeat="player in game.players track by $index">{{player}}</li>
+		<li ng-repeat="player in game.players" ng-class="{ready: player.ready}">{{player.name}}, {{player.ready}}</li>
 	</ul>
 </div>
+Ready: <input type="checkbox" ng-model="playerState.ready" value="false" ng-change="updateReadyStatus()">
 <button ng-show="isOwner" ng-click="deleteGame()">Delete</button>
+<button ng-show="everyoneReady()" ng-click="startGame()">Start Game</button>
 <chat></chat>

@@ -4,7 +4,10 @@ var Schema = mongoose.Schema;
 var Game = new Schema({
     name: { type: String, index: true },
     owner: String,
-    players: [String],
+    players: [{
+    	name: String,
+    	ready: Boolean
+    }],
     bannedPlayers: [String],
     chatHistory: [{
     	name: String,
