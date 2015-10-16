@@ -1,56 +1,49 @@
 (function() {
 	angular.module('cartel')
-		.service('AuthenticationService', ['$http', '$cookieStore', '$rootScope', '$timeout', '$base64', '$localStorage', AuthenticationService]);
+		.service('AuthenticationService', ['$http', '$rootScope', '$timeout', '$base64', '$localStorage', '$q', AuthenticationService]);
 
-	function AuthenticationService($http, $cookieStore, $rootScope, $timeout, $base64, $localStorage) {
-		this.Login = function(username, password, callback) {
+	function AuthenticationService($http, $rootScope, $timeout, $base64, $localStorage, $q) {
+		this.Login = function(user) {
+			var deferred = $q.defer();
 
-		            $http.post('/api/authenticate', { username: username, password: password })
-		               	.then(function success(response) {
-		               		// Store the token
-		               		$localStorage.token = response.data.token;
-		               		$localStorage.user = username;
+			console.log("Authenticating user " + user.username);
+            $http.post('/api/authenticate', user)
+               	.then(function success(response) {
+               		console.log("Authenticated with token " + response.data.token);
+               		// Store the token
+               		$localStorage.token = response.data.token;
+               		$localStorage.user = user.username;
 
-		                   	callback({
-		                   		success: true
-		                   	});
-		               	}, function failure(response) {
-		               		// Determine the reason for the failure
-		               		var reason = '';
-		               		switch (response.status) {
-		               			case 401:
-		               				reason = "Invalid username or password";
-		               				break;
-		               			default:
-		               				reason = "Some error happened";
-		               		}
+               		deferred.resolve({
+                   		success: true
+                   	});
 
-		               		callback({
-		               			succes: false,
-		               			message: reason
-		               		})
-		               	});
+               	}, function failure(response) {
+               		// Determine the reason for the failure
+               		var reason = '';
+               		switch (response.status) {
+               			case 401:
+               				console.log('Failed to authenticat - invalid username/password');
+               				reason = "Invalid username or password";
+               				break;
+               			default:
+               				console.log('Failed to authenticat - error');
+               				reason = "Some error happened";
+               		}
 
-		        };
+               		deferred.reject(callback({
+               			succes: false,
+               			message: reason
+               		}));
+               	});
 
-		        this.SetCredentials = function(username, password) {
-		            var authdata = $base64.encode(username + ':' + password);
+            return deferred.promise;
+        };
 
-		            $rootScope.globals = {
-		                currentUser: {
-		                    username: username,
-		                    authdata: authdata
-		                }
-		            };
-
-		            $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata; // jshint ignore:line
-		            $cookieStore.put('globals', $rootScope.globals);
-		        };
-
-		        this.ClearCredentials = function() {
-		            $rootScope.globals = {};
-		            $cookieStore.remove('globals');
-		            $http.defaults.headers.common.Authorization = 'Basic ';
-		        };
+        this.ClearCredentials = function() {
+        	delete $localStorage.token;
+        	delete $localStorage.user;
+            // $http.defaults.headers.common.Authorization = 'Basic ';
+        };
 	}
 })();

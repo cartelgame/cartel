@@ -34,35 +34,6 @@ function ensureAuthenticated (req, res, next) {
     }
 }
 
-// Protected the api with token authentication
-// router.use(function(req, res, next) {
-//     var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-//     if (token) {
-//         jwt.verify(token, securityConfig.secret, function(err, decoded) {
-//             if (err) {
-//                 console.log("Failed to authenticate token " + token);
-//                 return res.json({
-//                     success: false,
-//                     message: 'Failed to authenticate token.'
-//                 });
-//             } else {
-//                 console.log("Token OK");
-//                 // TODO: attach the user to the request
-//                 req.user = decoded;
-//                 next();
-//             }
-//         });
-//     } else {
-//         console.log("No token provided");
-//         return res.status(403).send({
-//             success: false,
-//             message: 'No token provided.'
-//         })
-//     }
-// });
-
-
 // NEW API ROUTES
 
 router.route('/authenticate')
@@ -72,7 +43,7 @@ router.route('/authenticate')
         console.log("Logged in as " + req.body.username);
         
         var token = jwt.sign(req.user.username, securityConfig.secret, {
-            expiresIn: 86400 // expires in 24 hrs
+            expiresIn: '1h' // expires in 24 hrs
         });
         
         console.log("Generated token " + token);
@@ -80,7 +51,7 @@ router.route('/authenticate')
         res.json({
             success: true,
             token: token
-        })
+        });
     });
 
 router.route('/users')
@@ -98,15 +69,12 @@ router.route('/users')
         User.register(new User({ username : req.body.username }), req.body.password, function(err, User) {
             if (err) {
                 // TODO: better error handling
-                return res.json({
-                    success: false
-                });
+                console.log(err);
+                return res.status(500).send(err.message);
             }
 
             passport.authenticate('local')(req, res, function () {
-                return res.json({
-                    success: true
-                });
+                return res.status(200).send('User successfully created');
             });
         });
     });
@@ -176,7 +144,7 @@ router.route('/games/:game_id')
 
             if (user != game.owner) {
                 // Add the user to the players list
-                game.players = _.union(game.players, [user.name]);
+                game.players = _.union(game.players, [user]);
 
                 // Persist the new players list
                 Game.update({_id: game._id}, {players: game.players}, function(err, game) {

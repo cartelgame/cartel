@@ -12,16 +12,19 @@
 
         $scope.login = function() {
             $scope.dataLoading = true;
-            AuthenticationService.Login($scope.username, $scope.password, function (response) {
-                if (response.success) {
-                    AuthenticationService.SetCredentials($scope.username, $scope.password);
-                    $location.path('/games');
-                } else {
-                    FlashService.Error(response.message);
-                    $scope.error = response.message;
-                    $scope.dataLoading = false;
-                }
-            });
+            AuthenticationService.Login($scope.user)
+                .then(function(response) {
+                    // Success
+                    if (response.success) {
+                        $location.path('/games');
+                    } else {
+                        FlashService.Error(response.message);
+                        $scope.error = response.message;
+                        $scope.dataLoading = false;
+                    }
+                }, function(response) {
+                    // Failure
+                });
         };
 	}
 })();
