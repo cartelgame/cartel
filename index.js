@@ -7,8 +7,6 @@ var LocalStrategy = require('passport-local').Strategy;
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require('express-session');
-
 
 var configDB = require('./config/database.js');
 
@@ -22,18 +20,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-// TODO: remove this when tokens work - we won't be using sessions
-var sessionMiddleware = session({
-	secret: 'secret',
-	key: 'express.sid',
-	saveUninitialized: true,
-	resave: true
-});
-
-app.use(sessionMiddleware);
 app.use(passport.initialize());
-// TODO: remove this when tokens work - we won't be using sessions
-app.use(passport.session());
 
 // Static things
 app.use(express.static('public'));
