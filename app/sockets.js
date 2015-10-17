@@ -21,7 +21,11 @@ module.exports = function(http) {
 		    	// TODO: check whether user is allowed in the game
 		    	socket.room = gameId;
 		    	socket.join(gameId);
-		    	socket.broadcast.to(socket.room).emit('joined', socket.decoded_token);
+		    	socket.broadcast.to(socket.room).emit('player-joined', socket.decoded_token);
+		    });
+
+		    socket.on('game-deleted', function() {
+		    	socket.broadcast.to(socket.room).emit('game-deleted');
 		    });
 
 		    socket.on('chat-message', function(message) {

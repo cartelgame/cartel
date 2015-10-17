@@ -1,11 +1,11 @@
 (function() {
 	angular.module('cartel')
-		.controller('GameController', ['$scope', 'GameService', '$location', '$routeParams', '$localStorage', 'SocketService',
+		.controller('GameController', ['$scope', 'GameService', '$location', '$routeParams', '$window', 'AuthService', 'SocketService',
 			'SocketAuthService', GameController]);
 
-	function GameController($scope, GameService, $location, $routeParams, $localStorage, SocketService, SocketAuthService) {
+	function GameController($scope, GameService, $location, $routeParams, $window, AuthService, SocketService, SocketAuthService) {
 		$scope.gameId = $routeParams.gameId;
-		$scope.user = $localStorage.user;
+		$scope.user = AuthService.getPlayerName();
 
 		console.log('Authenticating socket in Game Controller');
 		SocketAuthService.getAuthenticatedAsPromise()
@@ -17,8 +17,8 @@
 			.then(function(game) {
 				$scope.game = game;
 				// Find the state belonging to this player
-				$scope.playerState = _.find(game.players, {name: $localStorage.user});
-				$scope.isOwner = (game.owner == $localStorage.user);
+				$scope.playerState = _.find(game.players, {name: $scope.user});
+				$scope.isOwner = (game.owner == $scope.user);
 
 				SocketService.socket.emit('join', $scope.gameId);
 
@@ -26,7 +26,12 @@
 					_.find($scope.game.players, {name: data.name}).ready = data.ready;
 				});
 
-				SocketService.socket.on('joined', function(playerName) {
+				SocketService.socket.on('game-deleted', function(data) {
+					$window.alert('This game has been deleted - redirecting to the games list');
+					$location.path('/games');
+				});
+
+				SocketService.socket.on('player-joined', function(playerName) {
 					// add the player to the game if it doesn't already exist
 					if (!_.find($scope.game.players, {name: playerName})) {
 						$scope.game.players.push({
@@ -41,6 +46,7 @@
 		$scope.deleteGame = function() {
 			GameService.Delete($scope.game._id)
 				.then(function(response) {
+					SocketService.socket.emit('game-deleted');
 					$location.path('games');
 				});
 		};
@@ -58,7 +64,5 @@
 				game: $scope.gameId
 			});
 		};
-
-		
 	}
 })();

@@ -6,8 +6,8 @@
 		return {
 			restrict: 'E',
 			templateUrl: 'app/chat/chat.directive.html',
-			controller: ['SocketService', 'SocketAuthService', '$scope', '$localStorage',
-				function(SocketService, SocketAuthService, $scope, $localStorage) {
+			controller: ['SocketService', 'SocketAuthService', '$scope', 'AuthService',
+				function(SocketService, SocketAuthService, $scope, AuthService) {
 					console.log("Loading chat");
 					console.log(SocketService);
 
@@ -32,7 +32,7 @@
 
 									// Print the message at our end
 									$scope.game.chatHistory.push({
-										playerName: $localStorage.user,
+										playerName: AuthService.getPlayerName(),
 										message: $scope.currentMessage
 									});
 

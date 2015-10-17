@@ -1,8 +1,8 @@
 (function() {
 	angular.module('cartel')
-		.service('AuthenticationService', ['$http', '$rootScope', '$timeout', '$base64', '$localStorage', '$q', AuthenticationService]);
+		.service('AuthService', ['$http', '$rootScope', '$timeout', '$base64', '$localStorage', '$q', AuthService]);
 
-	function AuthenticationService($http, $rootScope, $timeout, $base64, $localStorage, $q) {
+	function AuthService($http, $rootScope, $timeout, $base64, $localStorage, $q) {
 		this.Login = function(user) {
 			var deferred = $q.defer();
 
@@ -12,7 +12,7 @@
                		console.log("Authenticated with token " + response.data.token);
                		// Store the token
                		$localStorage.token = response.data.token;
-               		$localStorage.user = user.username;
+               		$localStorage.playerName = user.username;
 
                		deferred.resolve();
                	}, function failure(response) {
@@ -36,7 +36,15 @@
 
         this.ClearCredentials = function() {
         	delete $localStorage.token;
-        	delete $localStorage.user;
+        	delete $localStorage.playerName;
         };
+
+        this.getToken = function() {
+            return $localStorage.token;
+        }
+
+        this.getPlayerName = function() {
+            return $localStorage.playerName;
+        }
 	}
 })();

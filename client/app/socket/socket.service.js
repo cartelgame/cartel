@@ -1,8 +1,8 @@
 (function() {
 	angular.module('cartel')
-		.factory('SocketService', function (socketFactory, $localStorage) {
+		.factory('SocketService', function (socketFactory, AuthService) {
 			// return socketFactory();
-			
+
 			var socket, ioSocket, isAuthenticated,
 			self = {
 				getAuthenticated: function() {
@@ -30,11 +30,11 @@
 				//---------------------
 				socket.on('connect', function () {
 					//send the jwt
-					socket.emit('authenticate', {token: $localStorage.token});
+					socket.emit('authenticate', {token: AuthService.getToken()});
 				});
 			};
 
 			return self;
-			
+
 		});
 })();
