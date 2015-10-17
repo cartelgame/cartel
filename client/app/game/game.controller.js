@@ -22,10 +22,18 @@
 
 				SocketService.socket.emit('join', $scope.gameId);
 
-				SocketService.socket.on('player-ready', function(data){
+				SocketService.socket.on('player-ready', function(data) {
 					_.find($scope.game.players, {name: data.name}).ready = data.ready;
-					// Find the state belonging to this player
-					// $scope.playerState = _.find($scope.game.players, {name: $localStorage.user});
+				});
+
+				SocketService.socket.on('joined', function(playerName) {
+					// add the player to the game if it doesn't already exist
+					if (!_.find($scope.game.players, {name: playerName})) {
+						$scope.game.players.push({
+							name: playerName,
+							ready: false
+						});
+					}
 				});
 
 			});
@@ -38,7 +46,7 @@
 		};
 
 		$scope.everyoneReady = function() {
-			if (!$scope.game) {
+			if (!$scope.game || $scope.game.players.length < 2) {
 				return false;
 			}
 			return !(_.find($scope.game.players, {ready: false}));

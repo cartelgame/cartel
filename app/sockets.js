@@ -21,12 +21,13 @@ module.exports = function(http) {
 		    	// TODO: check whether user is allowed in the game
 		    	socket.room = gameId;
 		    	socket.join(gameId);
+		    	socket.broadcast.to(socket.room).emit('joined', socket.decoded_token);
 		    });
 
 		    socket.on('chat-message', function(message) {
 		    	console.log(message);
 		    	var gameMessage = {
-		    		name: socket.decoded_token, 
+		    		playerName: socket.decoded_token, 
 		    		message: message.message
 		    	}
 		    	// Update the game object to add the new message

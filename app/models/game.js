@@ -10,7 +10,7 @@ var Game = new Schema({
     }],
     bannedPlayers: [String],
     chatHistory: [{
-    	name: String,
+    	playerName: String,
     	message: String
     }]
 });

@@ -14,10 +14,7 @@
                		$localStorage.token = response.data.token;
                		$localStorage.user = user.username;
 
-               		deferred.resolve({
-                   		success: true
-                   	});
-
+               		deferred.resolve();
                	}, function failure(response) {
                		// Determine the reason for the failure
                		var reason = '';
@@ -31,10 +28,7 @@
                				reason = "Some error happened";
                		}
 
-               		deferred.reject(callback({
-               			succes: false,
-               			message: reason
-               		}));
+               		deferred.reject(reason);
                	});
 
             return deferred.promise;
@@ -43,7 +37,6 @@
         this.ClearCredentials = function() {
         	delete $localStorage.token;
         	delete $localStorage.user;
-            // $http.defaults.headers.common.Authorization = 'Basic ';
         };
 	}
 })();

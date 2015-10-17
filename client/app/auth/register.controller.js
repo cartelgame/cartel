@@ -1,24 +1,20 @@
 (function() {
 	angular.module('cartel')
-		.controller('RegisterController', ['$location', 'FlashService', '$scope', 'UserService', 'AuthenticationService', RegisterController]);
+		.controller('RegisterController', ['$location', '$scope', 'UserService', 'AuthenticationService', RegisterController]);
 
-	function RegisterController($location, FlashService, $scope, UserService, AuthenticationService) { 
+	function RegisterController($location, $scope, UserService, AuthenticationService) { 
         $scope.register = function() {
             $scope.dataLoading = true;
             UserService.Create($scope.user)
                 .then(function (response) {
-                    // TODO: what's this FlashService all about?
-                    FlashService.Success('Registration successful', true);
-                    
                     // We've successfully registered the user, so now let's login
                     AuthenticationService.Login($scope.user)
-                        .then(function(response) {
+                        .then(function() {
                             $location.path('/games');
                         });
                 }, function(response) {
                     // Failure
-                    // TODO: do something
-                    FlashService.Error(response.message);
+                    // TODO: handle failure
                     $scope.dataLoading = false;
                 });
         }

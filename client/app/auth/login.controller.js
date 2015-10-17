@@ -1,8 +1,8 @@
 (function() {
 	angular.module('cartel')
-		.controller('LoginController', ['$location', 'AuthenticationService', 'FlashService', '$scope', LoginController]);
+		.controller('LoginController', ['$location', 'AuthenticationService', '$scope', LoginController]);
 
-	function LoginController($location, AuthenticationService, FlashService, $scope) {
+	function LoginController($location, AuthenticationService, $scope) {
 		console.log("Login Controller");
 
         (function initController() {
@@ -15,15 +15,11 @@
             AuthenticationService.Login($scope.user)
                 .then(function(response) {
                     // Success
-                    if (response.success) {
-                        $location.path('/games');
-                    } else {
-                        FlashService.Error(response.message);
-                        $scope.error = response.message;
-                        $scope.dataLoading = false;
-                    }
+                    $location.path('/games');
                 }, function(response) {
-                    // Failure
+                    // Failureresponse
+                    $scope.error = response.message;
+                    $scope.dataLoading = false;
                 });
         };
 	}
