@@ -1,4 +1,4 @@
-var CartelGame = require('./cartel-game-module');
+var CartelGame = require('./cartel-game');
 
 var game = new CartelGame();
 
@@ -24,3 +24,5 @@ for (var i=0;i<10;i++) {
 			);
 	}
 };
+
+console.log(game.serialize());
