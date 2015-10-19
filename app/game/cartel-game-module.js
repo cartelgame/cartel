@@ -1,7 +1,7 @@
 var Tile = require('./tile');
 var Player = require('./player');
 var PlayerState = require('./player-state');
-var cartelDice = require('./dice');
+var dice = require('./dice');
 
 function CartelGame() {
 
@@ -69,9 +69,9 @@ CartelGame.prototype.next = function() {
 	var state = this.state;
 
 	// TODO: rename either the module or the variable to avoid confusion
-	var dice = cartelDice.roll();
+	var diceValues = dice.roll();
 
-	var diceValue = dice[0] + dice[1];
+	var diceValue = diceValues[0] + diceValues[1];
 
 	for (var i=0;i<diceValue;i++) {
 		// move one forward
@@ -96,7 +96,7 @@ CartelGame.prototype.next = function() {
 	}
 
 	// push results
-	result.push({'dice': dice});
+	result.push({'dice': diceValues});
 
 	return result;
 }

@@ -1,10 +1,8 @@
 var CartelGame = require('./cartel-game-module');
 
 var game = new CartelGame();
-console.log(game);
 
 game.init();
-console.log(game);
 
 for (var i=0;i<10;i++) {
 	for (var j=0;j<game.state.players.length;j++) {
