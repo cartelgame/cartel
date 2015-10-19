@@ -4,7 +4,10 @@
 <div>
 	Players:
 	<ul>
-		<li ng-repeat="player in game.players" ng-class="{ready: player.ready}">{{player.name}}, {{player.ready}}</li>
+		<li ng-repeat="player in game.players" ng-class="{ready: player.ready}">
+			{{player.name}}, {{player.ready}}
+			<button ng-show="isOwner && player.name != user" ng-click="kickUser(player.name)">kick</button>
+		</li>
 	</ul>
 </div>
 Ready: <input type="checkbox" ng-model="playerState.ready" value="false" ng-change="updateReadyStatus()">

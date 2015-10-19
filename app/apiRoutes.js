@@ -4,7 +4,7 @@ var User = require('./models/user');
 var Game = require('./models/game');
 var router = express.Router();
 var _ = require('lodash');
-var jwt    = require('jsonwebtoken'); 
+var jwt = require('jsonwebtoken'); 
 var securityConfig = require('../config/security');
 
 function ensureAuthenticated (req, res, next) {
@@ -18,6 +18,7 @@ function ensureAuthenticated (req, res, next) {
             } else {
                 console.log("Token OK");
                 // Attach the user to the request
+                console.log(decoded);
                 req.user = decoded;
                 next();
             }
@@ -34,10 +35,16 @@ router.route('/authenticate')
 
     .post(passport.authenticate('local'), function(req, res) {
         // TODO: how do we send a response for failed authentication?
-        console.log("Logged in as " + req.body.username);
+        console.log("Logged in as " + req.user.username);
+
+        // Create an option to use as the token
+        var userInfo = {
+            username: req.user.username,
+            hash: req.user.hash
+        };
         
-        var token = jwt.sign(req.user.username, securityConfig.secret, {
-            expiresIn: '1h' // expires in 24 hrs
+        var token = jwt.sign(userInfo, securityConfig.secret, {
+            expiresIn: 120 // expires in 24 hrs
         });
         
         console.log("Generated token " + token);

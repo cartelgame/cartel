@@ -64,5 +64,9 @@
 				game: $scope.gameId
 			});
 		};
+
+		$scope.kickUser = function(playerName) {
+			SocketService.socket.emit('kick-player', playerName);
+		}
 	}
 })();

@@ -72,8 +72,17 @@ module.exports = function(http) {
 				    	});
 		    		}
 		    	);
+		    });
 
-		    	
+		    socket.on('kick-player', function(playerName) {
+		    	Game.findOne({_id: socket.room, owner: socket.decoded_token }, function(err, game) {
+		    		// If we found a game then the socket's owner is the owner of the game
+		    		// and has the right to kick players
+		    		game.players.pull({name: playerName});
+
+		    		
+		    		socket.broadcast.to(socket.room).emit('player-kicked', playerName);
+		    	});
 		    });
 		});
 }

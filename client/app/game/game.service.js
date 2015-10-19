@@ -1,16 +1,22 @@
 (function() {
 	angular.module('cartel')
-		.service('GameService', ['$http', GameService]);
+		.service('GameService', ['$http', '$location', GameService]);
 
-	function GameService($http) {
+	function GameService($http, $location) {
 
         function handleSuccess(res) {
             return res.data;
         }
 
         function handleError(error) {
-            return function () {
-                return { success: false, message: error };
+            return function (response) {
+                console.log(response)
+                // TODO: should be a better way of redirecting after failed token?
+                if (response.status == 403) {
+                    $location.path('/login');
+                } else {
+                    return { success: false, message: error };
+                }
             };
         }
 

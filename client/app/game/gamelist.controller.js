@@ -9,6 +9,10 @@
 		GameService.GetAll()
 			.then(function (response) {
 				$scope.games = response;
+			},
+			function(err) {
+				console.log("Errorororor");
+				console.log(err);
 			});
 
 		$scope.createGame = function() {
