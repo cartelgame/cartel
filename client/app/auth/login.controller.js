@@ -17,7 +17,7 @@
                     // Success
                     $location.path('/games');
                 }, function(response) {
-                    // Failureresponse
+                    // Failure response
                     $scope.error = response.message;
                     $scope.dataLoading = false;
                 });

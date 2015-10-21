@@ -1,20 +1,22 @@
-<div id='welcomeTextDiv'>
-	<h1>Welcome </h1>
-	<h2>{{playerName}}</h2>
+<div class="col-md-6 col-md-offset-3">
+	<div id="welcomeTextDiv">
+		<h1>Welcome </h1>
+		<h2>{{playerName}}</h2>
+	</div>
+	<h2>Game Servers:</h2>
+	<table>
+		<thead>
+			<th>User</th>
+			<th>Game</th>
+		</thead>
+		<tbody>
+			<tr ng-repeat="game in games">
+				<td>{{game.owner}}</td>
+				<td><a href="/#/games/{{game._id}}">{{game.name}}</a></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<input type="text"value="MyGame" ng-model="gameName" class="form-control">
+	<button ng-click="createGame()" class="btn btn-default">Create</button>
 </div>
-<h1>Game Servers:</h1>
-<table>
-	<thead>
-		<th>User</th>
-		<th>Game</th>
-	</thead>
-	<tbody>
-		<tr ng-repeat="game in games">
-			<td>{{game.owner}}</td>
-			<td><a href="/#/games/{{game._id}}">{{game.name}}</a></td>
-		</tr>
-	</tbody>
-</table>
-
-<input type="text"value="MyGame" ng-model="gameName">
-<button ng-click="createGame()">Create</button>

@@ -9,12 +9,12 @@
 
 		console.log('Authenticating socket in Game Controller');
 		SocketAuthService.getAuthenticatedAsPromise()
-			.then(function() {
+			.then(function success() {
 				console.log('Done authentications socket in Game Controller');
 				console.log('Getting game data');
 				return GameService.GetById($scope.gameId);
 			})
-			.then(function(game) {
+			.then(function success(game) {
 				$scope.game = game;
 				// Find the state belonging to this player
 				$scope.playerState = _.find(game.players, {name: $scope.user});
