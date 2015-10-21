@@ -4,6 +4,8 @@
 	<ul>
 		<li ng-repeat="chatMessage in game.chatHistory track by $index"><b>{{chatMessage.playerName}}:</b> {{chatMessage.message}}</li>
 	</ul>
-	<input type="text" ng-model="currentMessage" ng-enable="connected">
-	<button ng-click="sendChatMessage()" ng-enable="connected">TEST</button>
+	<div class="inline-form">
+		<input type="text" ng-model="currentMessage" ng-enable="connected" class="form-control" ng-keypress="keyPressed($event)">
+		<button ng-click="sendChatMessage()" ng-enable="connected" class="btn btn-default">TEST</button>
+	</div>
 </div>

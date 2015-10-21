@@ -32,24 +32,22 @@ nav {
 	flex: auto;
 }
 
-chat {
-    width: 250px;
-	background-color: green;
+ct-chat {
+    /*width: 250px;*/
 }
 
-chat ul { 
+ct-chat ul { 
     list-style-type: none; 
     margin: 0; 
     padding: 0; 
 }
-chat ul li { 
+ct-chat ul li { 
     padding: 5px 10px; 
 }
-chat ul li:nth-child(odd) {
+ct-chat ul li:nth-child(odd) {
     background: #eee; 
 }
 
-#welcomeTextDiv, #welcomeTextDiv h1, #welcomeTextDiv h2{
+.welcome, .welcome h1, .welcome h2{
     display: inline;
-
 }

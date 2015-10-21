@@ -15,13 +15,15 @@ module.exports = function(http) {
 		    timeout: 15000 // 15 seconds to send the authentication message
 		})).on('authenticated', function(socket) {
 		    //this socket is authenticated, we are good to handle more events from it.
+		    console.log("new socket!");
 
 		    socket.on('join', function(gameId) {
-		    	console.log("%s joined", socket.decoded_token);
+		    	var user = socket.decoded_token;
+		    	console.log("%s joined", user.username);
 		    	// TODO: check whether user is allowed in the game
 		    	socket.room = gameId;
 		    	socket.join(gameId);
-		    	socket.broadcast.to(socket.room).emit('player-joined', socket.decoded_token);
+		    	socket.broadcast.to(socket.room).emit('player-joined', user.username);
 		    });
 
 		    socket.on('game-deleted', function() {
@@ -30,8 +32,9 @@ module.exports = function(http) {
 
 		    socket.on('chat-message', function(message) {
 		    	console.log(message);
+		    	var user = socket.decoded_token;
 		    	var gameMessage = {
-		    		playerName: socket.decoded_token, 
+		    		playerName: user.username, 
 		    		message: message.message
 		    	}
 		    	// Update the game object to add the new message
@@ -52,12 +55,11 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('player-ready', function(data) {
-		    	console.log("%s %s", socket.decoded_token, data.ready ? 'ready' : 'not ready');
-
-		    	var username = socket.decoded_token;
+		    	var user = socket.decoded_token;
+		    	console.log("%s %s", user.username, data.ready ? 'ready' : 'not ready');
 
 		    	Game.findOneAndUpdate(
-		    		{_id: data.game, 'players.name': username},
+		    		{_id: data.game, 'players.name': user.username},
 		    		{'$set': {
 		    			'players.$.ready': data.ready // TODO: why do I have to invert this!?!?!
 		    		}},
@@ -67,7 +69,7 @@ module.exports = function(http) {
 
 		    			// Tell other players we've changed our state
 				    	socket.broadcast.to(socket.room).emit('player-ready', {
-				    		name: socket.decoded_token,
+				    		name: user.username,
 				    		ready: data.ready
 				    	});
 		    		}
@@ -75,7 +77,8 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('kick-player', function(playerName) {
-		    	Game.findOne({_id: socket.room, owner: socket.decoded_token }, function(err, game) {
+		    	var user = socket.decoded_token;
+		    	Game.findOne({_id: socket.room, owner: user.username }, function(err, game) {
 		    		// If we found a game then the socket's owner is the owner of the game
 		    		// and has the right to kick players
 		    		game.players.pull({name: playerName});

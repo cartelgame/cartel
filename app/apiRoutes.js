@@ -44,7 +44,7 @@ router.route('/authenticate')
         };
         
         var token = jwt.sign(userInfo, securityConfig.secret, {
-            expiresIn: 120 // expires in 24 hrs
+            expiresIn: '1h' // expires in 24 hrs
         });
         
         console.log("Generated token " + token);
@@ -137,18 +137,17 @@ router.route('/games/:game_id')
             }
 
             console.log("Found game");
-            var user = req.user;
 
             // Deny the user access if they are banned from the game
-            if (_.contains(game.bannedPlayers, user)) {
+            if (_.contains(game.bannedPlayers, req.user.username)) {
                 res.status(403).send("The user is banned from the game");
                 return;
             }
 
-            if (user != game.owner) {
+            if (req.user.username != game.owner) {
                 // Add the user to the players list
-                if (!_.find(game.players, {name: user})) {
-                    game.players.push({name: user, ready: false});
+                if (!_.find(game.players, {name: req.user.username})) {
+                    game.players.push({name: req.user.username, ready: false});
                 }
                 
                 // Persist the new players list
