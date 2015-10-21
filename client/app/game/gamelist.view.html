@@ -4,19 +4,23 @@
 		<h2>{{playerName}}</h2>
 	</div>
 	<h2>Game Servers:</h2>
-	<table>
+	<table class="table table-striped">
 		<thead>
 			<th>User</th>
 			<th>Game</th>
+			<th># Players</th>
 		</thead>
 		<tbody>
 			<tr ng-repeat="game in games">
 				<td>{{game.owner}}</td>
 				<td><a href="/#/games/{{game._id}}">{{game.name}}</a></td>
+				<td><a href="/#/games/{{game._id}}">{{game.players.length}}</a></td>
 			</tr>
 		</tbody>
 	</table>
 	
-	<input type="text"value="MyGame" ng-model="gameName" class="form-control">
-	<button ng-click="createGame()" class="btn btn-default">Create</button>
+	<div class="form-inline">
+		<input type="text"value="MyGame" ng-model="gameName" class="form-control">
+		<button ng-click="createGame()" class="btn btn-default">Create</button>
+	</div>
 </div>

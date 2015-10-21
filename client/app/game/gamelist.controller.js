@@ -8,6 +8,7 @@
 
 		GameService.GetAll()
 			.then(function (response) {
+				console.log(response);
 				$scope.games = response;
 			},
 			function(err) {

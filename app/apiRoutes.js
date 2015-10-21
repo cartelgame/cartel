@@ -95,9 +95,9 @@ router.route('/games')
         console.log("Creating game");
 
         var gameData = req.body;
-        gameData.owner = req.user;
+        gameData.owner = req.user.username;
         gameData.players = [{
-            name: req.user,
+            name: req.user.username,
             ready: false
         }];
         console.log(gameData);
