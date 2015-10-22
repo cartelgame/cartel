@@ -51,3 +51,12 @@ ct-chat ul li:nth-child(odd) {
 .welcome, .welcome h1, .welcome h2{
     display: inline;
 }
+
+.alert.top-right {
+}
+
+alerts {
+    position: absolute;
+    top: 10px;
+    right: 10px
+}

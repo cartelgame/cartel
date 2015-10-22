@@ -20,11 +20,11 @@
 					var reason = '';
 					switch (response.status) {
 						case 401:
-							console.log('Failed to authenticat - invalid username/password');
+							console.log('Failed to authenticate - invalid username/password');
 							reason = "Invalid username or password";
 							break;
 						default:
-							console.log('Failed to authenticat - error');
+							console.log('Failed to authenticate - error');
 							reason = "Some error happened";
 					}
 

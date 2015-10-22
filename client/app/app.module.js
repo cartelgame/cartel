@@ -1,5 +1,5 @@
 (function() {
-	angular.module('cartel', ['ngRoute', 'ngCookies', 'btford.socket-io', 'base64', 'ngStorage'])
+	angular.module('cartel', ['ngRoute', 'ngCookies', 'btford.socket-io', 'base64', 'ngStorage', 'mgcrea.ngStrap.alert', 'ngAnimate'])
 		.config(['$routeProvider', '$httpProvider', AppConfig]);
 
 	function AppConfig($routeProvider, $httpProvider) {
