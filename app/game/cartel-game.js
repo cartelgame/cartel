@@ -5,8 +5,9 @@ var dice = require('./dice');
 
 function CartelGame() {
 
+	this.tiles = [];
+
 	this.state = {
-		tiles: [],
 		players: [],
 		positions: [],
 		playerIndex: 0
@@ -24,7 +25,7 @@ CartelGame.prototype.iteratePlayers = function(visitor) {
 CartelGame.prototype.getCurrentTileForPlayer = function(player) {
 	var state = this.state;
 
-	return state.tiles[this.getStateForPlayer(player).position];
+	return this.tiles[this.getStateForPlayer(player).position];
 }
 
 CartelGame.prototype.getStateForPlayer = function(player) {
@@ -78,13 +79,13 @@ CartelGame.prototype.next = function() {
 		state.positions[state.playerIndex].position += 1;
 
 		// reset to position zero
-		if (state.positions[state.playerIndex].position == state.tiles.length) {
+		if (state.positions[state.playerIndex].position == this.tiles.length) {
 			state.positions[state.playerIndex].position = 0;
 		} 
 
 		//does the tile have a value when landing
 		var index = state.positions[state.playerIndex].position;
-		if (state.tiles[index].visitingValue) {
+		if (this.tiles[index].visitingValue) {
 			state.positions[state.playerIndex].player.cash += 200;
 		}
 	}
@@ -118,28 +119,6 @@ CartelGame.prototype.init = function() {
 
 	var state = this.state;
 
-	state.tiles.push(
-		new Tile({name:'a',visitingValue:200,purchasable:false}),
-		new Tile({name:'b',purchasable:true,cost:100,group:'a'}),
-		new Tile({name:'c',purchasable:true,cost:200,group:'a'}),
-		new Tile({name:'d',purchasable:true,cost:200,group:'a'}),
-		new Tile({name:'e',purchasable:true,cost:200,group:'b'}),
-		new Tile({name:'f',purchasable:true,cost:200,group:'b'}),
-		new Tile({name:'g',purchasable:true,cost:100,group:'b'}),
-		new Tile({name:'h',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'i',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'j',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'k',purchasable:true,cost:200,group:'d'}),
-		new Tile({name:'l',purchasable:true,cost:200,group:'d'}),
-		new Tile({name:'m',purchasable:true,cost:100,group:'d'}),
-		new Tile({name:'n',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'o',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'p',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'q',purchasable:true,cost:100,group:'f'}),
-		new Tile({name:'r',purchasable:true,cost:200,group:'f'}),
-		new Tile({name:'s',purchasable:true,cost:200,group:'f'}),
-		new Tile({name:'t',purchasable:true,cost:200,group:'f'})
-	);
 	state.players.push(
 		new Player({name:'steve'}),
 		new Player({name:'jon'}), 
