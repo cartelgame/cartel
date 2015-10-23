@@ -1,7 +1,17 @@
 var CartelGame = require('./cartel-game');
 var Tile = require('./tile');
+var GameState = require('./game-state');
+var Player = require('./player')
 
 var game = new CartelGame();
+
+var state = new GameState({
+	players: [
+		new Player({name:'steve'}),
+		new Player({name:'jon'}), 
+		new Player({name:'mikey'})
+	]
+});
 
 game.tiles = [
 		new Tile({name:'a',visitingValue:200,purchasable:false}),
@@ -26,27 +36,25 @@ game.tiles = [
 		new Tile({name:'t',purchasable:true,cost:200,group:'f'})
 ];
 
-game.init();
-
 for (var i=0;i<10;i++) {
-	for (var j=0;j<game.state.players.length;j++) {
-		var res = game.next();
-		var player = game.state.players[j];
-		var tile = game.getCurrentTileForPlayer(player);
+	for (var j=0;j<state.players.length;j++) {
+		var res = game.next(state);
+		var player = state.players[j];
+		var tile = game.getCurrentTileForPlayer(state, player);
 		if (tile) {
-			if (game.canPurchaseTile(tile, player)) {
-				game.purchaseTile(tile, game.state.players[j]);
+			if (game.canPurchaseTile(state, tile, player)) {
+				game.purchaseTile(state, tile, state.players[j]);
 			}
 		}
 
 		// show state
 		console.log(
 			'\r\nresult:' + res[0],
-			'\r\nplayer: ' + game.state.positions[j].player.name, 
-			'\r\ncash: ' + game.state.positions[j].player.cash,
-			'\r\nposition: ' + game.state.positions[j].position
+			'\r\nplayer: ' + state.positions[j].player.name, 
+			'\r\ncash: ' + state.positions[j].player.cash,
+			'\r\nposition: ' + state.positions[j].position
 			);
 	}
 };
 
-console.log(game.serialize());
+console.log(JSON.stringify(state));

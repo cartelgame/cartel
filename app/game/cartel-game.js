@@ -4,33 +4,20 @@ var PlayerState = require('./player-state');
 var dice = require('./dice');
 
 function CartelGame() {
-
 	this.tiles = [];
-
-	this.state = {
-		players: [],
-		positions: [],
-		playerIndex: 0
-	};
 }
 
-CartelGame.prototype.iteratePlayers = function(visitor) {
-	var state = this.state;
-
+CartelGame.prototype.iteratePlayers = function(state, visitor) {
 	for(var i=0;i<state.players.length;i++) {
 		visitor(state.players[i]);
 	}
 }
 
-CartelGame.prototype.getCurrentTileForPlayer = function(player) {
-	var state = this.state;
-
-	return this.tiles[this.getStateForPlayer(player).position];
+CartelGame.prototype.getCurrentTileForPlayer = function(state, player) {
+	return this.tiles[this.getStateForPlayer(state, player).position];
 }
 
-CartelGame.prototype.getStateForPlayer = function(player) {
-	var state = this.state;
-
+CartelGame.prototype.getStateForPlayer = function(state, player) {
 	for (var i=0;i<state.positions.length;i++) {
 		if (state.positions[i].player===player) {
 			return state.positions[i];
@@ -38,13 +25,11 @@ CartelGame.prototype.getStateForPlayer = function(player) {
 	}
 }
 
-CartelGame.prototype.canPurchaseTile = function(tile,player) {
-	var state = this.state;
-
+CartelGame.prototype.canPurchaseTile = function(state, tile, player) {
 	var isOwnedAlready = false;
 
 	for(var i=0;i<state.players.length;i++) {
-		var playerState = this.getStateForPlayer(state.players[i]);
+		var playerState = this.getStateForPlayer(state, state.players[i]);
 		for (var j=0;j<playerState.ownedTiles.length;j++) {
 			if (playerState.ownedTiles[j]===tile) {
 				isOwnedAlready = true;
@@ -56,18 +41,15 @@ CartelGame.prototype.canPurchaseTile = function(tile,player) {
 	return (!isOwnedAlready && tile.purchasable && player.cash>tile.cost);
 }
 
-CartelGame.prototype.purchaseTile = function(tile,player) {
-	var state = this.state;
-	var playerState = this.getStateForPlayer(player);
+CartelGame.prototype.purchaseTile = function(state, tile,player) {
+	var playerState = this.getStateForPlayer(state, player);
 	playerState.add(tile);
 	playerState.player.cash -= tile.cost;
 }
 
-CartelGame.prototype.next = function() {
+CartelGame.prototype.next = function(state) {
 
 	var result = [];
-
-	var state = this.state;
 
 	// TODO: rename either the module or the variable to avoid confusion
 	var diceValues = dice.roll();
@@ -105,28 +87,11 @@ CartelGame.prototype.next = function() {
 CartelGame.prototype.test = function() {
 
 	this.iteratePlayers(
+		state,
 		function(player) {
 			console.log(player.name);
 		}
 	);
-}
-
-CartelGame.prototype.serialize = function() {
-	return JSON.stringify(this.state);
-}
-
-CartelGame.prototype.init = function() {
-
-	var state = this.state;
-
-	state.players.push(
-		new Player({name:'steve'}),
-		new Player({name:'jon'}), 
-		new Player({name:'mikey'})
-	);
-	for (var i=0;i<state.players.length;i++) {
-		state.positions.push(new PlayerState(state.players[i], 0));	
-	}
 }
 
 module.exports = CartelGame;
