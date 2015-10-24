@@ -1,60 +1,88 @@
+var GameState = require('../models/game-state');
+var TileSet = require('../models/tileset');
+var mongoose = require('mongoose');
 var CartelGame = require('./cartel-game');
-var Tile = require('./tile');
-var GameState = require('./game-state');
-var Player = require('./player')
+var async = require('async');
 
-var game = new CartelGame();
+mongoose.connect('mongodb://localhost/carteltest');
 
-var state = new GameState({
-	players: [
-		new Player({name:'steve'}),
-		new Player({name:'jon'}), 
-		new Player({name:'mikey'})
-	]
-});
+async.series([
+	function(callback) {
+		TileSet.remove({}, function() {
+			console.log("Cleared tilesets");
+			callback();
+		});
+	},
+	function(callback) {
+		GameState.remove({}, function(){
+			console.log('Cleared game states');
+			callback();
+		});
+	},
+	function(callback) {
 
-game.tiles = [
-		new Tile({name:'a',visitingValue:200,purchasable:false}),
-		new Tile({name:'b',purchasable:true,cost:100,group:'a'}),
-		new Tile({name:'c',purchasable:true,cost:200,group:'a'}),
-		new Tile({name:'d',purchasable:true,cost:200,group:'a'}),
-		new Tile({name:'e',purchasable:true,cost:200,group:'b'}),
-		new Tile({name:'f',purchasable:true,cost:200,group:'b'}),
-		new Tile({name:'g',purchasable:true,cost:100,group:'b'}),
-		new Tile({name:'h',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'i',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'j',purchasable:true,cost:200,group:'c'}),
-		new Tile({name:'k',purchasable:true,cost:200,group:'d'}),
-		new Tile({name:'l',purchasable:true,cost:200,group:'d'}),
-		new Tile({name:'m',purchasable:true,cost:100,group:'d'}),
-		new Tile({name:'n',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'o',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'p',purchasable:true,cost:200,group:'e'}),
-		new Tile({name:'q',purchasable:true,cost:100,group:'f'}),
-		new Tile({name:'r',purchasable:true,cost:200,group:'f'}),
-		new Tile({name:'s',purchasable:true,cost:200,group:'f'}),
-		new Tile({name:'t',purchasable:true,cost:200,group:'f'})
-];
+		var tileset = new TileSet({
+			name: "Test Set",
+			tiles: [
+				{name: 'a', visitingValue: 200, purchasable: false},
+				{name: 'b', purchasable: true, cost: 100, group: 'a'},
+				{name: 'c', purchasable: true, cost: 200, group: 'a'},
+				{name: 'd', purchasable: true, cost: 200, group: 'a'},
+				{name: 'e', purchasable: true, cost: 200, group: 'b'},
+				{name: 'f', purchasable: true, cost: 200, group: 'b'},
+				{name: 'g', purchasable: true, cost: 100, group: 'b'},
+				{name: 'h', purchasable: true, cost: 200, group: 'c'},
+				{name: 'i', purchasable: true, cost: 200, group: 'c'},
+				{name: 'j', purchasable: true, cost: 200, group: 'c'},
+				{name: 'k', purchasable: true, cost: 200, group: 'd'},
+				{name: 'l', purchasable: true, cost: 200, group: 'd'},
+				{name: 'm', purchasable: true, cost: 100, group: 'd'},
+				{name: 'n', purchasable: true, cost: 200, group: 'e'},
+				{name: 'o', purchasable: true, cost: 200, group: 'e'},
+				{name: 'p', purchasable: true, cost: 200, group: 'e'},
+				{name: 'q', purchasable: true, cost: 100, group: 'f'},
+				{name: 'r', purchasable: true, cost: 200, group: 'f'},
+				{name: 's', purchasable: true, cost: 200, group: 'f'},
+				{name: 't', purchasable: true, cost: 200, group: 'f'}
+			]
+		});
 
-for (var i=0;i<10;i++) {
-	for (var j=0;j<state.players.length;j++) {
-		var res = game.next(state);
-		var player = state.players[j];
-		var tile = game.getCurrentTileForPlayer(state, player);
-		if (tile) {
-			if (game.canPurchaseTile(state, tile, player)) {
-				game.purchaseTile(state, tile, state.players[j]);
+		tileset.save();
+
+		var state = new GameState({
+			playerStates: [{
+				name: 'steve',
+				cash: 1500
+			}, {
+				name: 'jon',
+				cash: 1500
+			}, {
+				name: 'mikey',
+				cash: 1500
+			}],
+			tileset: tileset
+		});
+
+		state.save();
+
+		console.log(state);
+
+		for (var i = 0; i < 10; i++) {
+			for (var j = 0; j < state.playerStates.length; j++) {
+				var res = CartelGame.next(state);
+				var playerState = state.playerStates[j];
+				if (CartelGame.canPurchaseTile(state, playerState.position, playerState)) {
+					CartelGame.purchaseTile(state, playerState.position, playerState);
+				}
 			}
-		}
+		};
 
-		// show state
-		console.log(
-			'\r\nresult:' + res[0],
-			'\r\nplayer: ' + state.positions[j].player.name, 
-			'\r\ncash: ' + state.positions[j].player.cash,
-			'\r\nposition: ' + state.positions[j].position
-			);
+		state.save();
+
+		console.log(state);
+
+		console.log(JSON.stringify(state, null, 4));
+
 	}
-};
+])
 
-console.log(JSON.stringify(state));
