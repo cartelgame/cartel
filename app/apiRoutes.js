@@ -58,7 +58,7 @@ router.route('/authenticate')
 router.route('/users')
 
     // Get all users
-    // TODO: dev only
+    // TODO: dev only - shouldn't expose this
     .get(ensureAuthenticated, function(req, res){
         User.find({}, function(err, games) {
             res.json(games);
@@ -149,15 +149,13 @@ router.route('/games/:game_id')
                 if (!_.find(game.players, {name: req.user.username})) {
                     game.players.push({name: req.user.username, ready: false});
                 }
-                
+
                 // Persist the new players list
                 Game.update({_id: game._id}, {players: game.players}, function(err, game) {
                     console.log("Game updated");
                 });
             }
 
-            // TODO: need to emit to the socket to say the player has joined?
-            // or should joining be carried out separately and be initiated by the client via socket?
             res.json(game);
         });
     })

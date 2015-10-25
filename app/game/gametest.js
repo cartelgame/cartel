@@ -83,6 +83,6 @@ async.series([
 
 		console.log(JSON.stringify(state, null, 4));
 
+		mongoose.disconnect();
 	}
 ])
-

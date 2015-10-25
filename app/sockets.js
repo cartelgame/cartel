@@ -8,7 +8,6 @@ module.exports = function(http) {
 	var io = require('socket.io')(http);
 
 	// set authorization for socket.io
-	// TODO: figure out how to send messages only to players in game
 	io.sockets
 		.on('connection', socketioJwt.authorize({
 		    secret: securityConfig.secret,
@@ -61,7 +60,7 @@ module.exports = function(http) {
 		    	Game.findOneAndUpdate(
 		    		{_id: data.game, 'players.name': user.username},
 		    		{'$set': {
-		    			'players.$.ready': data.ready // TODO: why do I have to invert this!?!?!
+		    			'players.$.ready': data.ready
 		    		}},
 		    		{new: true},
 		    		function(err, game) {
@@ -83,7 +82,6 @@ module.exports = function(http) {
 		    		// and has the right to kick players
 		    		game.players.pull({name: playerName});
 
-		    		
 		    		socket.broadcast.to(socket.room).emit('player-kicked', playerName);
 		    	});
 		    });

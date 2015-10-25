@@ -10,14 +10,15 @@ var PlayerState = new Schema({
 });
 
 PlayerState.methods.add = function(tileIndex) {
-    // TODO: check if tileIndex already owned
-    this.ownedTiles.push(tileIndex);
+    if (this.ownedTiles.indexOf(tileIndex) < 0) {
+        this.ownedTiles.push(tileIndex);
+    }
 };
 
-PlayerState.methods.remove = function(tile) {
+PlayerState.methods.remove = function(tileIndex) {
     var index = -1;
-    for (var i=0;i<this.ownedTiles.length;i++) {
-        if (tile===this.ownedTiles[i]) {
+    for (var i = 0; i < this.ownedTiles.length; i++) {
+        if (tileIndex === this.ownedTiles[i]) {
             index = i;
             break;
         }
