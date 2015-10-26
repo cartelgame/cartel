@@ -1,28 +1,88 @@
+var GameState = require('../models/game-state');
+var TileSet = require('../models/tileset');
+var mongoose = require('mongoose');
 var CartelGame = require('./cartel-game');
+var async = require('async');
 
-var game = new CartelGame();
+mongoose.connect('mongodb://localhost/carteltest');
 
-game.init();
+async.series([
+	function(callback) {
+		TileSet.remove({}, function() {
+			console.log("Cleared tilesets");
+			callback();
+		});
+	},
+	function(callback) {
+		GameState.remove({}, function(){
+			console.log('Cleared game states');
+			callback();
+		});
+	},
+	function(callback) {
 
-for (var i=0;i<10;i++) {
-	for (var j=0;j<game.state.players.length;j++) {
-		var res = game.next();
-		var player = game.state.players[j];
-		var tile = game.getCurrentTileForPlayer(player);
-		if (tile) {
-			if (game.canPurchaseTile(tile, player)) {
-				game.purchaseTile(tile, game.state.players[j]);
+		var tileset = new TileSet({
+			name: "Test Set",
+			tiles: [
+				{name: 'a', visitingValue: 200, purchasable: false},
+				{name: 'b', purchasable: true, cost: 100, group: 'a'},
+				{name: 'c', purchasable: true, cost: 200, group: 'a'},
+				{name: 'd', purchasable: true, cost: 200, group: 'a'},
+				{name: 'e', purchasable: true, cost: 200, group: 'b'},
+				{name: 'f', purchasable: true, cost: 200, group: 'b'},
+				{name: 'g', purchasable: true, cost: 100, group: 'b'},
+				{name: 'h', purchasable: true, cost: 200, group: 'c'},
+				{name: 'i', purchasable: true, cost: 200, group: 'c'},
+				{name: 'j', purchasable: true, cost: 200, group: 'c'},
+				{name: 'k', purchasable: true, cost: 200, group: 'd'},
+				{name: 'l', purchasable: true, cost: 200, group: 'd'},
+				{name: 'm', purchasable: true, cost: 100, group: 'd'},
+				{name: 'n', purchasable: true, cost: 200, group: 'e'},
+				{name: 'o', purchasable: true, cost: 200, group: 'e'},
+				{name: 'p', purchasable: true, cost: 200, group: 'e'},
+				{name: 'q', purchasable: true, cost: 100, group: 'f'},
+				{name: 'r', purchasable: true, cost: 200, group: 'f'},
+				{name: 's', purchasable: true, cost: 200, group: 'f'},
+				{name: 't', purchasable: true, cost: 200, group: 'f'}
+			]
+		});
+
+		tileset.save();
+
+		var state = new GameState({
+			playerStates: [{
+				name: 'steve',
+				cash: 1500
+			}, {
+				name: 'jon',
+				cash: 1500
+			}, {
+				name: 'mikey',
+				cash: 1500
+			}],
+			tileset: tileset
+		});
+
+		state.save();
+
+		console.log(state);
+
+		for (var i = 0; i < 10; i++) {
+			for (var j = 0; j < state.playerStates.length; j++) {
+				var res = CartelGame.next(state);
+				var playerState = state.playerStates[j];
+				if (CartelGame.canPurchaseTile(state, playerState.position, playerState)) {
+					CartelGame.purchaseTile(state, playerState.position, playerState);
+				}
 			}
-		}
+		};
 
-		// show state
-		console.log(
-			'\r\nresult:' + res[0],
-			'\r\nplayer: ' + game.state.positions[j].player.name, 
-			'\r\ncash: ' + game.state.positions[j].player.cash,
-			'\r\nposition: ' + game.state.positions[j].position
-			);
+		state.save();
+
+		console.log(state);
+
+		console.log(JSON.stringify(state, null, 4));
+
+		mongoose.disconnect();
 	}
-};
-
-console.log(game.serialize());
+])
