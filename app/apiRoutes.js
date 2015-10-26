@@ -145,17 +145,15 @@ router.route('/games/:game_id')
                 return;
             }
 
-            if (req.user.username != game.owner) {
-                // Add the user to the players list
-                if (!_.find(game.playerStates, {name: req.user.username})) {
-                    game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
-                }
-
-                // Persist the new players list
-                GameState.update({_id: game._id}, {playerStates: game.playerStates}, function(err, game) {
-                    console.log("Game updated");
-                });
+            // Add the user to the players list
+            if (!_.find(game.playerStates, {name: req.user.username})) {
+                game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
             }
+
+            // Persist the new players list
+            GameState.update({_id: game._id}, {playerStates: game.playerStates}, function(err, game) {
+                console.log("Game updated");
+            });
 
             res.json(game);
         });

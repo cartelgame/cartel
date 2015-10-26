@@ -19,7 +19,7 @@
 
 			isAuthenticated = false;
 
-			self.socket = socket = socketFactory();
+			self.socket = socket = socketFactory({ioSocket: io.connect({forceNew: true})});
 
 			//---------------------
 			//these listeners will only be applied once when socket.initialize is called
@@ -35,6 +35,11 @@
 				socket.emit('authenticate', {token: AuthService.getToken()});
 			});
 		};
+
+		self.disconnect = function() {
+			self.socket.disconnect();
+			delete self.socket;
+		}
 
 		return self;
 	}

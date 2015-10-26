@@ -37,7 +37,7 @@ module.exports = function(http) {
 		    		message: message.message
 		    	}
 		    	// Update the game object to add the new message
-		    	Game.findByIdAndUpdate(
+		    	GameState.findByIdAndUpdate(
 		    		message.game,
 		    		{ $push: { chatHistory: gameMessage } },
 		    		{ new: true },
@@ -96,10 +96,22 @@ module.exports = function(http) {
 		    	);
 		    });
 
-		    socket.on('disconnect', function(stuff) {
+		    socket.on('disconnect', function() {
 		    	console.log("%s disconnected!", user.username);
 
 		    	socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
+
+		    	GameState.findOneAndUpdate(
+		    		// Must include owner here as only owners can kick
+		    		{ _id: socket.room },
+		    		// Remove the player from the game
+		    		{ $pull: { playerStates: { name: user.username }}},
+		    		// Return the new modified object
+		    		{ new: true },
+		    		function(err, game) {
+		    			if (err) throw err;
+		    		}
+		    	);
 		    });
 		});
 }

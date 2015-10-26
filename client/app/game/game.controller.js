@@ -85,7 +85,7 @@
 
 		$scope.$on("$destroy", function(){
 	        console.log("Left game page");
-	        SocketService.socket.disconnect();
+	        SocketService.disconnect();
 	    });
 	}
 })();
