@@ -19,7 +19,7 @@ function ensureAuthenticated (req, res, next) {
             } else {
                 console.log("Token OK");
                 // Attach the user to the request
-                console.log(decoded);
+                // console.log(decoded);
                 req.user = decoded;
                 next();
             }
@@ -101,7 +101,7 @@ router.route('/games')
             name: req.user.username,
             ready: false
         }];
-        console.log(gameData);
+        // console.log(gameData);
 
         GameState.find(gameData, function(err, games) {
             if (games && games.length) {

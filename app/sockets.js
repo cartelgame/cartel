@@ -14,10 +14,11 @@ module.exports = function(http) {
 		    timeout: 15000 // 15 seconds to send the authentication message
 		})).on('authenticated', function(socket) {
 		    //this socket is authenticated, we are good to handle more events from it.
-		    console.log("new socket!");
+		    var user = socket.decoded_token;
+
+		    console.log("%s connected", user.username);
 
 		    socket.on('join', function(gameId) {
-		    	var user = socket.decoded_token;
 		    	console.log("%s joined", user.username);
 		    	// TODO: check whether user is allowed in the game
 		    	socket.room = gameId;
@@ -31,7 +32,6 @@ module.exports = function(http) {
 
 		    socket.on('chat-message', function(message) {
 		    	console.log(message);
-		    	var user = socket.decoded_token;
 		    	var gameMessage = {
 		    		playerName: user.username, 
 		    		message: message.message
@@ -39,8 +39,8 @@ module.exports = function(http) {
 		    	// Update the game object to add the new message
 		    	Game.findByIdAndUpdate(
 		    		message.game,
-		    		{$push: {chatHistory: gameMessage}},
-		    		{new: true},
+		    		{ $push: { chatHistory: gameMessage } },
+		    		{ new: true },
 		    		function(err, model) {
 		    			if (err) {
 		    				console.log(err);
@@ -54,7 +54,6 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('player-ready', function(data) {
-		    	var user = socket.decoded_token;
 		    	console.log("%s %s", user.username, data.ready ? 'ready' : 'not ready');
 
 		    	GameState.findOneAndUpdate(
@@ -77,17 +76,30 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('kick-player', function(playerName) {
-		    	var user = socket.decoded_token;
 		    	console.log('Kicking player ' + playerName)
-		    	GameState.findOne({_id: socket.room, owner: user.username }, function(err, game) {
-		    		console.log('Found game');
-		    		// If we found a game then the socket's owner is the owner of the game
-		    		// and has the right to kick players
-		    		game.playerStates.pull({name: playerName});
 
-		    		console.log('Broadcasting player kicked message');
-		    		socket.broadcast.to(socket.room).emit('player-kicked', playerName);
-		    	});
+		    	GameState.findOneAndUpdate(
+		    		// Must include owner here as only owners can kick
+		    		{ _id: socket.room, owner: user.username },
+		    		// Remove the player
+		    		{ $pull: { playerStates: { name: playerName }}},
+		    		// Return the new modified object
+		    		{ new: true },
+		    		function(err, game) {
+		    			if (err) throw err;
+
+		    			console.log(game);
+
+		    			console.log('Broadcasting player kicked message');
+		    			socket.broadcast.to(socket.room).emit('player-kicked', playerName);
+		    		}
+		    	);
+		    });
+
+		    socket.on('disconnect', function(stuff) {
+		    	console.log("%s disconnected!", user.username);
+
+		    	socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
 		    });
 		});
 }

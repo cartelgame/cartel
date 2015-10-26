@@ -31,6 +31,19 @@
 					$location.path('/games');
 				});
 
+				SocketService.socket.on('player-kicked', function(playerName) {
+					if ($scope.user == playerName) {
+						$window.alert('You have been kicked from the game - redirecting to the games list');
+						$location.path('/games');
+					} else {
+						_.remove($scope.game.playerStates, {name: playerName});
+					}
+				});
+
+				SocketService.socket.on('player-disconnected', function(playerName) {
+					_.remove($scope.game.playerStates, {name: playerName});
+				});
+
 				SocketService.socket.on('player-joined', function(playerName) {
 					// add the player to the game if it doesn't already exist
 					if (!_.find($scope.game.playerStates, {name: playerName})) {
@@ -67,6 +80,12 @@
 
 		$scope.kickUser = function(playerName) {
 			SocketService.socket.emit('kick-player', playerName);
+			_.remove($scope.game.playerStates, {name: playerName});
 		}
+
+		$scope.$on("$destroy", function(){
+	        console.log("Left game page");
+	        SocketService.socket.disconnect();
+	    });
 	}
 })();
