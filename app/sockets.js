@@ -1,6 +1,6 @@
 var socketioJwt = require('socketio-jwt');
 var securityConfig = require('../config/security');
-var Game = require('./models/game');
+var GameState = require('./models/game-state');
 var _ = require('lodash');
 
 module.exports = function(http) {
@@ -57,14 +57,15 @@ module.exports = function(http) {
 		    	var user = socket.decoded_token;
 		    	console.log("%s %s", user.username, data.ready ? 'ready' : 'not ready');
 
-		    	Game.findOneAndUpdate(
-		    		{_id: data.game, 'players.name': user.username},
+		    	GameState.findOneAndUpdate(
+		    		{_id: data.game, 'playerStates.name': user.username},
 		    		{'$set': {
-		    			'players.$.ready': data.ready
+		    			'playerStates.$.ready': data.ready
 		    		}},
 		    		{new: true},
 		    		function(err, game) {
-		    			console.log(game.players);
+		    			if (err) throw err;
+		    			console.log(game.playerStates);
 
 		    			// Tell other players we've changed our state
 				    	socket.broadcast.to(socket.room).emit('player-ready', {
@@ -77,11 +78,14 @@ module.exports = function(http) {
 
 		    socket.on('kick-player', function(playerName) {
 		    	var user = socket.decoded_token;
-		    	Game.findOne({_id: socket.room, owner: user.username }, function(err, game) {
+		    	console.log('Kicking player ' + playerName)
+		    	GameState.findOne({_id: socket.room, owner: user.username }, function(err, game) {
+		    		console.log('Found game');
 		    		// If we found a game then the socket's owner is the owner of the game
 		    		// and has the right to kick players
-		    		game.players.pull({name: playerName});
+		    		game.playerStates.pull({name: playerName});
 
+		    		console.log('Broadcasting player kicked message');
 		    		socket.broadcast.to(socket.room).emit('player-kicked', playerName);
 		    	});
 		    });

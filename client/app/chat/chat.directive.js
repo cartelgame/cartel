@@ -12,7 +12,6 @@
 
 	function ChatController(SocketService, SocketAuthService, $scope, AuthService) {
 		console.log("Loading chat");
-		console.log(SocketService);
 
 		$scope.messages = [];
 

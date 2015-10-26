@@ -1,7 +1,8 @@
 var express = require('express');
 var passport = require('passport');
 var User = require('./models/user');
-var Game = require('./models/game');
+var GameState = require('./models/game-state');
+var PlayerState = require('./models/player-state');
 var router = express.Router();
 var _ = require('lodash');
 var jwt = require('jsonwebtoken'); 
@@ -84,7 +85,7 @@ router.route('/games')
 
     // Get all games
     .get(ensureAuthenticated, function(req, res){
-        Game.find({}, function(err, games) {
+        GameState.find({}, function(err, games) {
             res.json(games);
         });
     })
@@ -96,20 +97,20 @@ router.route('/games')
 
         var gameData = req.body;
         gameData.owner = req.user.username;
-        gameData.players = [{
+        gameData.playerStates = [{
             name: req.user.username,
             ready: false
         }];
         console.log(gameData);
 
-        Game.find(gameData, function(err, games) {
+        GameState.find(gameData, function(err, games) {
             if (games && games.length) {
                 console.log(games);
                 // Game already exists
                 console.log("Game already exists");
                 res.status(400).send('Game already exists');
             } else {
-                var myGame = new Game(gameData);
+                var myGame = new GameState(gameData);
                 myGame.save(function(err, game) {
                     if (err) {
                         throw err;
@@ -129,7 +130,7 @@ router.route('/games/:game_id')
         //  Get the game
         var gameId = req.params.game_id;
         console.log("Looking for game " + gameId);
-        Game.findOne({_id: gameId}, function(err, game) {
+        GameState.findOne({_id: gameId}, function(err, game) {
             if (!game) {
                 console.log("Can't find the game");
                 res.status(404).send("Game not found");
@@ -146,12 +147,12 @@ router.route('/games/:game_id')
 
             if (req.user.username != game.owner) {
                 // Add the user to the players list
-                if (!_.find(game.players, {name: req.user.username})) {
-                    game.players.push({name: req.user.username, ready: false});
+                if (!_.find(game.playerStates, {name: req.user.username})) {
+                    game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
                 }
 
                 // Persist the new players list
-                Game.update({_id: game._id}, {players: game.players}, function(err, game) {
+                GameState.update({_id: game._id}, {playerStates: game.playerStates}, function(err, game) {
                     console.log("Game updated");
                 });
             }
@@ -161,7 +162,7 @@ router.route('/games/:game_id')
     })
 
     .delete(ensureAuthenticated, function(req, res) {
-        Game.findOne({_id: req.params.game_id}).remove().exec();
+        GameState.findOne({_id: req.params.game_id}).remove().exec();
         res.status(200).send("Game deleted successfully");
     });
 

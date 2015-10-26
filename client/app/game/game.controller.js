@@ -17,13 +17,13 @@
 			.then(function success(game) {
 				$scope.game = game;
 				// Find the state belonging to this player
-				$scope.playerState = _.find(game.players, {name: $scope.user});
+				$scope.playerState = _.find(game.playerStates, {name: $scope.user});
 				$scope.isOwner = (game.owner == $scope.user);
 
 				SocketService.socket.emit('join', $scope.gameId);
 
 				SocketService.socket.on('player-ready', function(data) {
-					_.find($scope.game.players, {name: data.name}).ready = data.ready;
+					_.find($scope.game.playerStates, {name: data.name}).ready = data.ready;
 				});
 
 				SocketService.socket.on('game-deleted', function(data) {
@@ -33,8 +33,8 @@
 
 				SocketService.socket.on('player-joined', function(playerName) {
 					// add the player to the game if it doesn't already exist
-					if (!_.find($scope.game.players, {name: playerName})) {
-						$scope.game.players.push({
+					if (!_.find($scope.game.playerStates, {name: playerName})) {
+						$scope.game.playerStates.push({
 							name: playerName,
 							ready: false
 						});
@@ -52,10 +52,10 @@
 		};
 
 		$scope.everyoneReady = function() {
-			if (!$scope.game || $scope.game.players.length < 2) {
+			if (!$scope.game || $scope.game.playerStates.length < 2) {
 				return false;
 			}
-			return !(_.find($scope.game.players, {ready: false}));
+			return !(_.find($scope.game.playerStates, {ready: false}));
 		};
 
 		$scope.updateReadyStatus = function() {

@@ -6,7 +6,8 @@ var PlayerState = new Schema({
     position: {type: Number, default: 0},
     // References to owned tiles
     ownedTiles: [Number],
-    cash: {type: Number, default: 1500}
+    cash: {type: Number, default: 1500},
+    ready: Boolean
 });
 
 PlayerState.methods.add = function(tileIndex) {

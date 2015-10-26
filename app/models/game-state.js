@@ -4,6 +4,13 @@ var PlayerState = require('./player-state');
 var TileSet = require('./tileset');
 
 var GameState = new Schema({
+	name: String,
+	owner: {type: String, index: true},
+	bannedPlayers: [String],
+    chatHistory: [{
+    	playerName: String,
+    	message: String
+    }],
     // TODO: should player states be nested or references? Are the used outside of a game state?
     playerStates: [PlayerState.schema],
     // TODO: should pick random player to start
