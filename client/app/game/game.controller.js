@@ -8,6 +8,7 @@
 		$scope.user = AuthService.getPlayerName();
 
 		console.log('Authenticating socket in Game Controller');
+
 		SocketAuthService.getAuthenticatedAsPromise()
 			.then(function success() {
 				console.log('Done authentications socket in Game Controller');
@@ -23,7 +24,7 @@
 				SocketService.socket.emit('join', $scope.gameId);
 
 				SocketService.socket.on('player-ready', function(data) {
-					_.find($scope.game.playerStates, {name: data.name}).ready = data.ready;
+					_.find($scope.game.playerStates, { name: data.name }).ready = data.ready;
 				});
 
 				SocketService.socket.on('game-deleted', function(data) {
@@ -42,6 +43,7 @@
 
 				SocketService.socket.on('player-disconnected', function(playerName) {
 					_.remove($scope.game.playerStates, {name: playerName});
+					$scope.playerState.ready = false;
 				});
 
 				SocketService.socket.on('player-joined', function(playerName) {
@@ -53,9 +55,8 @@
 						});
 					}
 				});
-
 			});
-
+		
 		$scope.deleteGame = function() {
 			GameService.Delete($scope.game._id)
 				.then(function(response) {
@@ -64,25 +65,7 @@
 				});
 		};
 
-		$scope.everyoneReady = function() {
-			if (!$scope.game || $scope.game.playerStates.length < 2) {
-				return false;
-			}
-			return !(_.find($scope.game.playerStates, {ready: false}));
-		};
-
-		$scope.updateReadyStatus = function() {
-			SocketService.socket.emit('player-ready', {
-				ready: $scope.playerState.ready,
-				game: $scope.gameId
-			});
-		};
-
-		$scope.kickUser = function(playerName) {
-			SocketService.socket.emit('kick-player', playerName);
-			_.remove($scope.game.playerStates, {name: playerName});
-		}
-
+		// Listen for when the user leaves the view
 		$scope.$on("$destroy", function(){
 	        console.log("Left game page");
 	        SocketService.disconnect();

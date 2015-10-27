@@ -36,6 +36,9 @@
 			});
 		};
 
+		/**
+		 * Disconnect and delete the socket
+		 */
 		self.disconnect = function() {
 			self.socket.disconnect();
 			delete self.socket;

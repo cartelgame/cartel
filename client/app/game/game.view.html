@@ -1,23 +1,5 @@
 <div class="col-sm-8">
-	<div>
-		Game ID: {{gameId}}
-	</div>
-	<div>
-		Players:
-		<ul>
-			<li ng-repeat="player in game.playerStates" ng-class="{ready: player.ready}">
-				{{player.name}}, {{player.ready}}
-				<button ng-show="isOwner && player.name != user" ng-click="kickUser(player.name)" class="btn btn-danger btn-xs">kick</button>
-			</li>
-		</ul>
-	</div>
-	<div class="checkbox">
-	  	<label>
-	    <input type="checkbox" ng-model="playerState.ready" value="false" ng-change="updateReadyStatus()">
-	    	Ready
-	  	</label>
-	</div>
+	<ct-lobby></ct-lobby>
 	<button ng-show="isOwner" ng-click="deleteGame()" class="btn btn-danger btn-sm">Delete</button>
-	<button ng-show="isOwner && everyoneReady()" ng-click="startGame()" class="btn btn-default">Start Game</button>
 </div>
 <ct-chat class="col-sm-4"></ct-chat>
