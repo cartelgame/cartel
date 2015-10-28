@@ -1,4 +1,3 @@
 # cartel 
 
-test commit 6
-woooo
+test commit 7 this is silly now
