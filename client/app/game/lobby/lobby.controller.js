@@ -1,9 +1,9 @@
 (function() {
 	angular.module('cartel')
-		.controller('GameController', ['$scope', 'GameService', '$location', '$routeParams', '$window', 'AuthService', 'SocketService',
-			'SocketAuthService', GameController]);
+		.controller('LobbyController', ['$scope', 'GameService', '$location', '$routeParams', '$window', 'AuthService', 'SocketService',
+			'SocketAuthService', LobbyController]);
 
-	function GameController($scope, GameService, $location, $routeParams, $window, AuthService, SocketService, SocketAuthService) {
+	function LobbyController($scope, GameService, $location, $routeParams, $window, AuthService, SocketService, SocketAuthService) {
 		$scope.gameId = $routeParams.gameId;
 		$scope.user = AuthService.getPlayerName();
 
@@ -16,6 +16,12 @@
 				return GameService.GetById($scope.gameId);
 			})
 			.then(function success(game) {
+				// If the game has already started, redirect to the play game page
+				if (game.started) {
+					$location.path('games/' + $scope.gameId + '/play');
+					return;
+				}
+
 				$scope.game = game;
 				// Find the state belonging to this player
 				$scope.playerState = _.find(game.playerStates, {name: $scope.user});
@@ -28,7 +34,7 @@
 				});
 
 				SocketService.socket.on('game-started', function(data) {
-					$scope.game.started = true;
+					$location.path('games/' + $scope.gameId + '/play');
 				});
 
 				SocketService.socket.on('game-deleted', function(data) {
@@ -60,7 +66,7 @@
 					}
 				});
 			});
-		
+
 		$scope.deleteGame = function() {
 			GameService.Delete($scope.game._id)
 				.then(function(response) {
@@ -68,6 +74,33 @@
 					$location.path('games');
 				});
 		};
+
+		$scope.everyoneReady = function() {
+			if (!$scope.game || $scope.game.playerStates.length < 2) {
+				return false;
+			}
+			return !(_.find($scope.game.playerStates, {ready: false}));
+		};
+
+		$scope.updateReadyStatus = function() {
+			SocketService.socket.emit('player-ready', {
+				ready: $scope.playerState.ready,
+				game: $scope.gameId
+			});
+		};
+
+		$scope.kickUser = function(playerName) {
+			SocketService.socket.emit('kick-player', playerName);
+			_.remove($scope.game.playerStates, {name: playerName});
+		}
+
+		$scope.startGame = function() {
+			if (!_.find($scope.game.playerStates, {ready: false})) {
+				SocketService.socket.emit('start-game');
+				// $scope.game.started = true;
+				$location.path('games/' + $scope.gameId + '/play');
+			}
+		}
 
 		// Listen for when the user leaves the view
 		$scope.$on("$destroy", function(){

@@ -13,12 +13,16 @@
 				controller: 'RegisterController'
 			})
 			.when('/games', {
-				templateUrl: 'app/game/gamelist.view.html',
+				templateUrl: 'app/game/list/gamelist.view.html',
 				controller: 'GameListController'
 			})
 			.when('/games/:gameId', {
-				templateUrl: 'app/game/game.view.html',
-				controller: 'GameController'
+				templateUrl: 'app/game/lobby/lobby.view.html',
+				controller: 'LobbyController'
+			})
+			.when('/games/:gameId/play', {
+				templateUrl: 'app/game/play/play.view.html',
+				controller: 'PlayController'
 			})
 			.otherwise({
 	        	redirectTo: '/login'

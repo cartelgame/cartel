@@ -27,6 +27,8 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('game-deleted', function() {
+		    	console.log("Socket message received: game-deleted");
+		    	console.log("Broadcasting socket message: game-deleted");
 		    	socket.broadcast.to(socket.room).emit('game-deleted');
 		    });
 
@@ -128,7 +130,7 @@ module.exports = function(http) {
 		    		function(err, game) {
 		    			if (err) throw err;
 
-		    			console.log("Socket broas")
+		    			console.log("Broadcasting socket message: player-disconnected %s", user.username);
 		    			socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
 		    		}
 		    	);
