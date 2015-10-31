@@ -7,6 +7,7 @@ var GameState = new Schema({
 	name: String,
 	owner: {type: String, index: true},
 	bannedPlayers: [String],
+    started: Boolean,
     chatHistory: [{
     	playerName: String,
     	message: String

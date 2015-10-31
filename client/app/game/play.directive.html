@@ -1,0 +1,10 @@
+Game started!
+<div>
+	Players:
+	<ul>
+		<li ng-repeat="player in game.playerStates" ng-class="{ready: player.ready}">
+			{{player.name}}, {{player.ready}}
+			<button ng-show="isOwner && player.name != user" ng-click="kickUser(player.name)" class="btn btn-danger btn-xs">kick</button>
+		</li>
+	</ul>
+</div>

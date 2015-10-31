@@ -30,6 +30,23 @@ module.exports = function(http) {
 		    	socket.broadcast.to(socket.room).emit('game-deleted');
 		    });
 
+		    socket.on('start-game', function() {
+		    	
+		    	GameState.findOneAndUpdate(
+		    		// Must include owner here as only owners can kick
+		    		{ _id: socket.room, owner: user.username },
+		    		// Remove the player
+		    		{ started: true },
+		    		// Return the new modified object
+		    		{ new: true },
+		    		function(err, game) {
+		    			if (err) throw err;
+		    			// Tell everyone else that the game has started
+		    			socket.broadcast.to(socket.room).emit('game-started');
+		    		}
+		    	);
+		    });
+
 		    socket.on('chat-message', function(message) {
 		    	console.log(message);
 		    	var gameMessage = {
@@ -76,6 +93,7 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('kick-player', function(playerName) {
+		    	console.log("Socket: %s kick player %s", user.username, playerName);
 		    	console.log('Kicking player ' + playerName)
 
 		    	GameState.findOneAndUpdate(
@@ -97,19 +115,21 @@ module.exports = function(http) {
 		    });
 
 		    socket.on('disconnect', function() {
-		    	console.log("%s disconnected!", user.username);
-
-		    	socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
+		    	console.log("Socket: %s disconnected", user.username);
 
 		    	GameState.findOneAndUpdate(
 		    		// Must include owner here as only owners can kick
-		    		{ _id: socket.room },
+		    		// Only remove a player if the game hasn't started
+		    		{ _id: socket.room, started: false },
 		    		// Remove the player from the game
 		    		{ $pull: { playerStates: { name: user.username }}},
 		    		// Return the new modified object
 		    		{ new: true },
 		    		function(err, game) {
 		    			if (err) throw err;
+
+		    			console.log("Socket broas")
+		    			socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
 		    		}
 		    	);
 		    });

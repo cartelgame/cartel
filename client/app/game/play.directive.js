@@ -5,7 +5,7 @@
 	function PlayDirective() {
 		return {
 			restrict: 'E',
-			templateUrl: 'app/game/lobby.directive.html',
+			templateUrl: 'app/game/play.directive.html',
 			controller: ['SocketService', 'SocketAuthService', '$scope', 'GameService', PlayController]
 		};
 	}

@@ -31,5 +31,12 @@
 			SocketService.socket.emit('kick-player', playerName);
 			_.remove($scope.game.playerStates, {name: playerName});
 		}
+
+		$scope.startGame = function() {
+			if (!_.find($scope.game.playerStates, {ready: false})) {
+				SocketService.socket.emit('start-game');
+				$scope.game.started = true;
+			}
+		}
 	}
 })();

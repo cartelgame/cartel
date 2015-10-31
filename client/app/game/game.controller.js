@@ -27,6 +27,10 @@
 					_.find($scope.game.playerStates, { name: data.name }).ready = data.ready;
 				});
 
+				SocketService.socket.on('game-started', function(data) {
+					$scope.game.started = true;
+				});
+
 				SocketService.socket.on('game-deleted', function(data) {
 					$window.alert('This game has been deleted - redirecting to the games list');
 					$location.path('/games');
