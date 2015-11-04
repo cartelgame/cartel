@@ -11,6 +11,7 @@ var PlayerState = new Schema({
 });
 
 PlayerState.methods.add = function(tileIndex) {
+    console.log("Adding tile %d to player %s", tileIndex, this.name);
     if (this.ownedTiles.indexOf(tileIndex) < 0) {
         this.ownedTiles.push(tileIndex);
     }
