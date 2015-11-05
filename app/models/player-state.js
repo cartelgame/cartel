@@ -7,7 +7,10 @@ var PlayerState = new Schema({
     // References to owned tiles
     ownedTiles: [Number],
     cash: {type: Number, default: 1500},
-    ready: Boolean
+    // Whether the player is ready to start the game from the lobby
+    ready: Boolean,
+    // Whether the player is connected to the game once it's started
+    available: Boolean
 });
 
 PlayerState.methods.add = function(tileIndex) {

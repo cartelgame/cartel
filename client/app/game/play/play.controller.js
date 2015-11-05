@@ -21,7 +21,7 @@
 				$scope.playerState = _.find(game.playerStates, {name: $scope.user});
 				$scope.isOwner = (game.owner == $scope.user);
 
-				SocketService.socket.emit('join', $scope.gameId);
+				SocketService.socket.emit('player-available', $scope.gameId);
 
 				SocketService.socket.on('game-deleted', function(data) {
 					$window.alert('This game has been deleted - redirecting to the games list');

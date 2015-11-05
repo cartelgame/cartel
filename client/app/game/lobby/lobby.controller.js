@@ -27,7 +27,7 @@
 				$scope.playerState = _.find(game.playerStates, {name: $scope.user});
 				$scope.isOwner = (game.owner == $scope.user);
 
-				SocketService.socket.emit('join', $scope.gameId);
+				SocketService.socket.emit('lobby-enter', $scope.gameId);
 
 				SocketService.socket.on('player-ready', function(data) {
 					_.find($scope.game.playerStates, { name: data.name }).ready = data.ready;

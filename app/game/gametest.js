@@ -100,12 +100,10 @@ async.waterfall([
 	function(state, callback) {
 		console.log("finding state %s", state._id);
 
-		GameState.findOne({}, function(err, game) {
-			console.log("Found state");
-			var playerState = game.playerStates[0];
-			playerState.add(12345);
-            callback();
-        });
+		var steveState = state.getPlayerStateByName('steve');
+		console.log(steveState);
+		playerState.add(12345);
+		callback();
 	},
 
 	function(callback) {

@@ -20,4 +20,10 @@ var GameState = new Schema({
     tileset: { type: Schema.Types.ObjectId, ref: 'TileSet' }
 });
 
+GameState.methods.getPlayerStateByName = function findSimilarType (name) {
+    return this.playerStates.filter(function(playerState) {
+        return playerState.name === name;
+    }).pop();
+};
+
 module.exports = mongoose.model('GameState', GameState);

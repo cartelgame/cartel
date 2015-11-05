@@ -3,8 +3,150 @@ var securityConfig = require('../config/security');
 var GameState = require('./models/game-state');
 var _ = require('lodash');
 
-module.exports = function(http) {
+function handlePlayerDisconnectedGame(socket) {
+	return function() {
+		console.log("Socket: %s disconnected", socket.user.username);
 
+		GameState.findOneAndUpdate(
+			// Must include owner here as only owners can kick
+			// Only remove a player if the game hasn't started
+			{ _id: socket.room, started: false },
+			// Remove the player from the game
+			{ $pull: { playerStates: { name: socket.user.username }}},
+			// Return the new modified object
+			{ new: true },
+			function(err, game) {
+				if (err) throw err;
+
+				console.log("Broadcasting socket message: player-disconnected %s", socket.user.username);
+				socket.broadcast.to(socket.room).emit('player-disconnected', socket.user.username);
+			}
+		);
+	}
+}
+
+function handlePlayerDisconnectedLobby(socket) {
+	return function() {
+		console.log("Socket: %s disconnected", socket.user.username);
+
+		GameState.findOneAndUpdate(
+    		{_id: gameId, started: true, 'playerStates.name': socket.user.username}, 
+    		{'$set': {
+    			'playerStates.$.available': false
+    		}},
+    		function(err, game) {
+    		if (err) {
+    			throw err;
+    		}
+
+    		if (game) {
+    			console.log("Broadcasting socket message: player-disconnected %s", socket.user.username);
+		    	socket.broadcast.to(socket.room).emit('player-disconnected', socket.user.username);
+    		}
+    	});
+	}
+}
+
+function handleStartGame(socket) {
+	return function() {
+		GameState.findOneAndUpdate(
+    		// Must include owner here as only owners can kick
+    		{ _id: socket.room, owner: socket.user.username },
+    		// Remove the player
+    		{ started: true },
+    		// Return the new modified object
+    		{ new: true },
+    		function(err, game) {
+    			if (err) throw err;
+    			// Tell everyone else that the game has started
+    			socket.broadcast.to(socket.room).emit('game-started');
+    		}
+    	);
+    }
+}
+
+function handleGameDeleted(socket) {
+	return function() {
+		console.log("Socket message received: game-deleted");
+    	console.log("Broadcasting socket message: game-deleted");
+    	socket.broadcast.to(socket.room).emit('game-deleted');
+	}
+}
+
+function handleChatMessage(socket) {
+	return function(message) {
+		console.log(message);
+    	var gameMessage = {
+    		playerName: socket.user.username, 
+    		message: message.message
+    	}
+    	// Update the game object to add the new message
+    	GameState.findByIdAndUpdate(
+    		message.game,
+    		{ $push: { chatHistory: gameMessage } },
+    		{ new: true },
+    		function(err, model) {
+    			if (err) {
+    				console.log(err);
+    				return;
+    			}
+    			console.log(model.chatHistory);
+    			// Emit the message to everyone else
+    			socket.broadcast.to(socket.room).emit('chat-message', _.last(model.chatHistory));
+    		}
+    	);
+	}
+}
+
+function handlePlayerReady(socket) {
+	return function(data) {
+    	console.log("%s %s", socket.user.username, data.ready ? 'ready' : 'not ready');
+
+    	GameState.findOneAndUpdate(
+    		{_id: data.game, 'playerStates.name': socket.user.username},
+    		{'$set': {
+    			'playerStates.$.ready': data.ready
+    		}},
+    		{new: true},
+    		function(err, game) {
+    			if (err) throw err;
+    			console.log(game.playerStates);
+
+    			// Tell other players we've changed our state
+		    	socket.broadcast.to(socket.room).emit('player-ready', {
+		    		name: socket.user.username,
+		    		ready: data.ready
+		    	});
+    		}
+    	);
+    }
+}
+
+function handleKickPlayer(socket) {
+	return function(playerName) {
+    	console.log("Socket: %s kick player %s", socket.user.username, playerName);
+    	console.log('Kicking player ' + playerName)
+
+    	GameState.findOneAndUpdate(
+    		// Must include owner here as only owners can kick
+    		{ _id: socket.room, owner: socket.user.username },
+    		// Remove the player
+    		{ $pull: { playerStates: { name: playerName }}},
+    		// Return the new modified object
+    		{ new: true },
+    		function(err, game) {
+    			if (err) throw err;
+
+    			console.log(game);
+
+    			console.log('Broadcasting player kicked message');
+    			socket.broadcast.to(socket.room).emit('player-kicked', playerName);
+    		}
+    	);
+    }
+}
+
+module.exports = function(http) {
 	var io = require('socket.io')(http);
 
 	// set authorization for socket.io
@@ -14,126 +156,52 @@ module.exports = function(http) {
 		    timeout: 15000 // 15 seconds to send the authentication message
 		})).on('authenticated', function(socket) {
 		    //this socket is authenticated, we are good to handle more events from it.
-		    var user = socket.decoded_token;
+		    socket.user = socket.decoded_token;
 
-		    console.log("%s connected", user.username);
+		    console.log("%s connected", socket.user.username);
 
-		    socket.on('join', function(gameId) {
-		    	console.log("%s joined", user.username);
+		    // Players send 'play-available' when they connect to a game that's started
+		    socket.on('player-available', function(gameId) {
+		    	// Find the game and set the player's status to available
+		    	GameState.findOneAndUpdate(
+		    		{_id: gameId, started: true, 'playerStates.name': socket.user.username}, 
+		    		{'$set': {
+		    			'playerStates.$.available': true
+		    		}},
+		    		function(err, game) {
+		    		if (err) {
+		    			throw err;
+		    		}
+
+		    		if (game) {
+		    			// Got the game and the user is in it
+		    			console.log("%s available", socket.user.username);
+		    			socket.room = gameId;
+				    	socket.join(gameId);
+				    	socket.broadcast.to(socket.room).emit('player-available', socket.user.username);
+		    		}
+		    	});
+
+		    	// Listen for game-related messages
+		    	socket.on('game-deleted', handleGameDeleted(socket));
+		    	socket.on('chat-message', handleChatMessage(socket));
+		    	socket.on('disconnect', handlePlayerDisconnectedLobby(socket));
+		    });
+
+		    socket.on('lobby-enter', function(gameId) {
+		    	console.log("%s entered lobby for game %s", socket.user.username, gameId);
 		    	// TODO: check whether user is allowed in the game
 		    	socket.room = gameId;
 		    	socket.join(gameId);
-		    	socket.broadcast.to(socket.room).emit('player-joined', user.username);
-		    });
+		    	socket.broadcast.to(socket.room).emit('player-joined', socket.user.username);
 
-		    socket.on('game-deleted', function() {
-		    	console.log("Socket message received: game-deleted");
-		    	console.log("Broadcasting socket message: game-deleted");
-		    	socket.broadcast.to(socket.room).emit('game-deleted');
-		    });
-
-		    socket.on('start-game', function() {
-		    	
-		    	GameState.findOneAndUpdate(
-		    		// Must include owner here as only owners can kick
-		    		{ _id: socket.room, owner: user.username },
-		    		// Remove the player
-		    		{ started: true },
-		    		// Return the new modified object
-		    		{ new: true },
-		    		function(err, game) {
-		    			if (err) throw err;
-		    			// Tell everyone else that the game has started
-		    			socket.broadcast.to(socket.room).emit('game-started');
-		    		}
-		    	);
-		    });
-
-		    socket.on('chat-message', function(message) {
-		    	console.log(message);
-		    	var gameMessage = {
-		    		playerName: user.username, 
-		    		message: message.message
-		    	}
-		    	// Update the game object to add the new message
-		    	GameState.findByIdAndUpdate(
-		    		message.game,
-		    		{ $push: { chatHistory: gameMessage } },
-		    		{ new: true },
-		    		function(err, model) {
-		    			if (err) {
-		    				console.log(err);
-		    				return;
-		    			}
-		    			console.log(model.chatHistory);
-		    			// Emit the message to everyone else
-		    			socket.broadcast.to(socket.room).emit('chat-message', _.last(model.chatHistory));
-		    		}
-		    	);
-		    });
-
-		    socket.on('player-ready', function(data) {
-		    	console.log("%s %s", user.username, data.ready ? 'ready' : 'not ready');
-
-		    	GameState.findOneAndUpdate(
-		    		{_id: data.game, 'playerStates.name': user.username},
-		    		{'$set': {
-		    			'playerStates.$.ready': data.ready
-		    		}},
-		    		{new: true},
-		    		function(err, game) {
-		    			if (err) throw err;
-		    			console.log(game.playerStates);
-
-		    			// Tell other players we've changed our state
-				    	socket.broadcast.to(socket.room).emit('player-ready', {
-				    		name: user.username,
-				    		ready: data.ready
-				    	});
-		    		}
-		    	);
-		    });
-
-		    socket.on('kick-player', function(playerName) {
-		    	console.log("Socket: %s kick player %s", user.username, playerName);
-		    	console.log('Kicking player ' + playerName)
-
-		    	GameState.findOneAndUpdate(
-		    		// Must include owner here as only owners can kick
-		    		{ _id: socket.room, owner: user.username },
-		    		// Remove the player
-		    		{ $pull: { playerStates: { name: playerName }}},
-		    		// Return the new modified object
-		    		{ new: true },
-		    		function(err, game) {
-		    			if (err) throw err;
-
-		    			console.log(game);
-
-		    			console.log('Broadcasting player kicked message');
-		    			socket.broadcast.to(socket.room).emit('player-kicked', playerName);
-		    		}
-		    	);
-		    });
-
-		    socket.on('disconnect', function() {
-		    	console.log("Socket: %s disconnected", user.username);
-
-		    	GameState.findOneAndUpdate(
-		    		// Must include owner here as only owners can kick
-		    		// Only remove a player if the game hasn't started
-		    		{ _id: socket.room, started: false },
-		    		// Remove the player from the game
-		    		{ $pull: { playerStates: { name: user.username }}},
-		    		// Return the new modified object
-		    		{ new: true },
-		    		function(err, game) {
-		    			if (err) throw err;
-
-		    			console.log("Broadcasting socket message: player-disconnected %s", user.username);
-		    			socket.broadcast.to(socket.room).emit('player-disconnected', user.username);
-		    		}
-		    	);
-		    });
+		    	// Listen for lobby-related messages
+		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
+		    	socket.on('game-deleted', handleGameDeleted(socket));
+		    	socket.on('start-game', handleStartGame(socket));
+		    	socket.on('chat-message', handleChatMessage(socket));
+		    	socket.on('player-ready', handlePlayerReady(socket));
+		    	socket.on('kick-player', handleKickPlayer(socket));
+		    });		    
 		});
 }
