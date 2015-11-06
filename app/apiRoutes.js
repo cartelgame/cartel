@@ -3,10 +3,12 @@ var passport = require('passport');
 var User = require('./models/user');
 var GameState = require('./models/game-state');
 var PlayerState = require('./models/player-state');
+var TileSet = require('./models/tileset');
 var router = express.Router();
 var _ = require('lodash');
 var jwt = require('jsonwebtoken'); 
 var securityConfig = require('../config/security');
+var async = require('async');
 
 function ensureAuthenticated (req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -92,7 +94,6 @@ router.route('/games')
 
     // Create a game
     .post(ensureAuthenticated, function(req, res){
-        // TODO: implement.
         console.log("Creating game");
 
         var gameData = req.body;
@@ -101,26 +102,41 @@ router.route('/games')
             name: req.user.username,
             ready: false
         }];
-        // console.log(gameData);
 
-        GameState.find(gameData, function(err, games) {
-            if (games && games.length) {
-                console.log(games);
-                // Game already exists
-                console.log("Game already exists");
-                res.status(400).send('Game already exists');
-            } else {
-                var myGame = new GameState(gameData);
-                myGame.save(function(err, game) {
-                    if (err) {
-                        throw err;
+        async.series([
+            // Get the default tileset
+            function(callback) {
+                TileSet.findOne({name: 'default'}, function(err, tileset) {
+                    gameData.tileset = tileset;
+                    callback();
+                });
+
+            },
+
+            // Save the game
+            function(callback) {
+                GameState.findOne({name: gameData.name}, function(err, game) {
+                    if (game) {
+                        console.log(game);
+                        // Game already exists
+                        console.log("Game already exists");
+                        res.status(400).send('Game already exists');
+                    } else {
+                        var myGame = new GameState(gameData);
+                        myGame.save(function(err, game) {
+                            if (err) {
+                                throw err;
+                            }
+
+                            console.log("Game %d saved", game._id);
+                            res.json(game);
+                        });
                     }
-
-                    console.log("Game %d saved", game._id);
-                    res.json(game);
                 });
             }
-        });
+
+        ])
+        
     });
 
 router.route('/games/:game_id')

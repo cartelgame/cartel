@@ -27,6 +27,14 @@
 					$window.alert('This game has been deleted - redirecting to the games list');
 					$location.path('/games');
 				});
+
+				SocketService.socket.on('player-joined', function(playerName) {
+					_.find($scope.game.playerStates, { name: playerName }).available = true;
+				});
+
+				SocketService.socket.on('player-disconnected', function(playerName) {
+					_.find($scope.game.playerStates, { name: playerName }).available = false;
+				});
 			});
 		$scope.deleteGame = function() {
 			GameService.Delete($scope.game._id)

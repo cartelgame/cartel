@@ -160,8 +160,27 @@ module.exports = function(http) {
 
 		    console.log("%s connected", socket.user.username);
 
+		    // Listen for when the user enters the game lobby
+		    socket.on('lobby-enter', function(gameId) {
+		    	console.log("%s entered lobby for game %s", socket.user.username, gameId);
+		    	// TODO: check whether user is allowed in the game
+		    	socket.room = gameId;
+		    	socket.join(gameId);
+		    	socket.broadcast.to(socket.room).emit('player-joined', socket.user.username);
+
+		    	// Listen for lobby-related messages
+		    	socket.on('disconnect', handlePlayerDisconnectedLobby(socket));
+		    	socket.on('game-deleted', handleGameDeleted(socket));
+		    	socket.on('start-game', handleStartGame(socket));
+		    	socket.on('chat-message', handleChatMessage(socket));
+		    	socket.on('player-ready', handlePlayerReady(socket));
+		    	socket.on('kick-player', handleKickPlayer(socket));
+		    });	
+
+		    // Listen for when the player enters the game
 		    // Players send 'play-available' when they connect to a game that's started
 		    socket.on('player-available', function(gameId) {
+		    	console.log("Socket message received: %s available", socket.user.username);
 		    	// Find the game and set the player's status to available
 		    	GameState.findOneAndUpdate(
 		    		{_id: gameId, started: true, 'playerStates.name': socket.user.username}, 
@@ -175,7 +194,7 @@ module.exports = function(http) {
 
 		    		if (game) {
 		    			// Got the game and the user is in it
-		    			console.log("%s available", socket.user.username);
+		    			console.log("Socket broadcasting (%s): %s available", gameId, socket.user.username);
 		    			socket.room = gameId;
 				    	socket.join(gameId);
 				    	socket.broadcast.to(socket.room).emit('player-available', socket.user.username);
@@ -185,23 +204,9 @@ module.exports = function(http) {
 		    	// Listen for game-related messages
 		    	socket.on('game-deleted', handleGameDeleted(socket));
 		    	socket.on('chat-message', handleChatMessage(socket));
-		    	socket.on('disconnect', handlePlayerDisconnectedLobby(socket));
+		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
 		    });
 
-		    socket.on('lobby-enter', function(gameId) {
-		    	console.log("%s entered lobby for game %s", socket.user.username, gameId);
-		    	// TODO: check whether user is allowed in the game
-		    	socket.room = gameId;
-		    	socket.join(gameId);
-		    	socket.broadcast.to(socket.room).emit('player-joined', socket.user.username);
-
-		    	// Listen for lobby-related messages
-		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
-		    	socket.on('game-deleted', handleGameDeleted(socket));
-		    	socket.on('start-game', handleStartGame(socket));
-		    	socket.on('chat-message', handleChatMessage(socket));
-		    	socket.on('player-ready', handlePlayerReady(socket));
-		    	socket.on('kick-player', handleKickPlayer(socket));
-		    });		    
+		    	    
 		});
 }
