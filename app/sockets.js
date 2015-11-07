@@ -1,6 +1,7 @@
 var socketioJwt = require('socketio-jwt');
 var securityConfig = require('../config/security');
 var GameState = require('./models/game-state');
+var CartelGame = require('./game/cartel-game');
 var _ = require('lodash');
 
 function handlePlayerDisconnectedGame(socket) {
@@ -146,6 +147,25 @@ function handleKickPlayer(socket) {
     }
 }
 
+function handleRoll(socket) {
+	return function() {
+		GameState.findOne({_id: socket.room, started: true, 'playerStates.name': socket.user.username})
+			.populate('tileset')
+			.exec(function(err, game) {
+	    		if (err) {
+	    			throw err;
+	    		}
+
+	    		if (game) {
+	    			CartelGame.next(game);
+	    			game.save(function(err) {
+	    				socket.emit.to(socket.room).emit('state-updated', game);
+	    			});
+	    		}
+	    	});
+	}
+}
+
 module.exports = function(http) {
 	var io = require('socket.io')(http);
 
@@ -205,6 +225,7 @@ module.exports = function(http) {
 		    	socket.on('game-deleted', handleGameDeleted(socket));
 		    	socket.on('chat-message', handleChatMessage(socket));
 		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
+		    	socket.on('roll', handleRoll(socket));
 		    });
 
 		    	    

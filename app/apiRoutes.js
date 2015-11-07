@@ -146,33 +146,36 @@ router.route('/games/:game_id')
         //  Get the game
         var gameId = req.params.game_id;
         console.log("Looking for game " + gameId);
-        GameState.findOne({_id: gameId}, function(err, game) {
-            if (!game) {
-                console.log("Can't find the game");
-                res.status(404).send("Game not found");
-                return;
-            }
+        GameState
+            .findOne({_id: gameId})
+            .populate('tileset')
+            .exec(function(err, game) {
+                if (!game) {
+                    console.log("Can't find the game");
+                    res.status(404).send("Game not found");
+                    return;
+                }
 
-            console.log("Found game");
+                console.log("Found game");
 
-            // Deny the user access if they are banned from the game
-            if (_.contains(game.bannedPlayers, req.user.username)) {
-                res.status(403).send("The user is banned from the game");
-                return;
-            }
+                // Deny the user access if they are banned from the game
+                if (_.contains(game.bannedPlayers, req.user.username)) {
+                    res.status(403).send("The user is banned from the game");
+                    return;
+                }
 
-            // Add the user to the players list
-            if (!_.find(game.playerStates, {name: req.user.username})) {
-                game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
-            }
+                // Add the user to the players list
+                if (!_.find(game.playerStates, {name: req.user.username})) {
+                    game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
+                }
 
-            // Persist the new players list
-            GameState.update({_id: game._id}, {playerStates: game.playerStates}, function(err, game) {
-                console.log("Game updated");
+                // Persist the new players list
+                GameState.update({_id: game._id}, {playerStates: game.playerStates}, function(err, game) {
+                    console.log("Game updated");
+                });
+
+                res.json(game);
             });
-
-            res.json(game);
-        });
     })
 
     .delete(ensureAuthenticated, function(req, res) {

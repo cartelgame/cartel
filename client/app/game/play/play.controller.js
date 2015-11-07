@@ -35,7 +35,12 @@
 				SocketService.socket.on('player-disconnected', function(playerName) {
 					_.find($scope.game.playerStates, { name: playerName }).available = false;
 				});
+
+				SocketService.socket.on('state-updated', function(gameState) {
+					$scope.game = gameState;
+				});
 			});
+
 		$scope.deleteGame = function() {
 			GameService.Delete($scope.game._id)
 				.then(function(response) {
@@ -51,6 +56,18 @@
 					$location.path('games');
 				});
 		};
+
+		$scope.isMyTurn = function() {
+			if (!$scope.game) {
+				return false;
+			} else {
+				return $scope.game.playerStates[$scope.game.playerIndex].name === $scope.user;
+			}		
+		}
+
+		$scope.roll = function() {
+			SocketService.socket.emit('roll');
+		}
 
 		// Listen for when the user leaves the view
 		$scope.$on("$destroy", function(){

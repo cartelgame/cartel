@@ -38,16 +38,60 @@
 		</div>
 	</div>
 	<div class="ct-game-board-row">
-		<div class="ct-game-board-tile">11</div>
-		<div class="ct-game-board-tile">10</div>
-		<div class="ct-game-board-tile">9</div>
-		<div class="ct-game-board-tile">8</div>
-		<div class="ct-game-board-tile">7</div>
-		<div class="ct-game-board-tile">6</div>
-		<div class="ct-game-board-tile">5</div>
-		<div class="ct-game-board-tile">4</div>
-		<div class="ct-game-board-tile">3</div>
-		<div class="ct-game-board-tile">2</div>
-		<div class="ct-game-board-tile">1</div>
+		<div class="ct-game-board-tile">11
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 10">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">10
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 9">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">9
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 8">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">8
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 7">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">7
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 6">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">6
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 5">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">5
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 4">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">4
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 3">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">3
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 2">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">2
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 1">{{player.name}}</li>
+			</ul>
+		</div>
+		<div class="ct-game-board-tile">1
+			<ul>
+				<li ng-repeat="player in game.playerStates" ng-show="player.position === 0">{{player.name}}</li>
+			</ul>
+		</div>
 	</div>
 </div>

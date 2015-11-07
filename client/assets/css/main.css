@@ -78,7 +78,7 @@ alerts {
 }
 
 .ct-game-board-tile {
-    background-color: white;
+    /*background-color: white;*/
     border: 1px solid grey;
     /* flex-grow: 1; */
     width: 50px;
