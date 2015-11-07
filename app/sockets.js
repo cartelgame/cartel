@@ -1,6 +1,7 @@
 var socketioJwt = require('socketio-jwt');
 var securityConfig = require('../config/security');
 var GameState = require('./models/game-state');
+var TileSet = require('./models/tileset');
 var CartelGame = require('./game/cartel-game');
 var _ = require('lodash');
 
@@ -147,8 +148,9 @@ function handleKickPlayer(socket) {
     }
 }
 
-function handleRoll(socket) {
+function handleRoll(io, socket) {
 	return function() {
+		// TODO: use waterfall
 		GameState.findOne({_id: socket.room, started: true, 'playerStates.name': socket.user.username})
 			.populate('tileset')
 			.exec(function(err, game) {
@@ -157,9 +159,15 @@ function handleRoll(socket) {
 	    		}
 
 	    		if (game) {
-	    			CartelGame.next(game);
-	    			game.save(function(err) {
-	    				socket.emit.to(socket.room).emit('state-updated', game);
+	    			TileSet.findOne({_id: game.tileset}, function(err, tileset) {
+	    				if (err) {
+	    					throw err;
+	    				}
+	    				CartelGame.next(game, tileset);
+	    				game.save(function(err) {
+	    					io.sockets.in(socket.room).emit('state-updated', game);
+		    				// socket.to(socket.room).emit('state-updated', game);
+		    			});
 	    			});
 	    		}
 	    	});
@@ -225,7 +233,7 @@ module.exports = function(http) {
 		    	socket.on('game-deleted', handleGameDeleted(socket));
 		    	socket.on('chat-message', handleChatMessage(socket));
 		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
-		    	socket.on('roll', handleRoll(socket));
+		    	socket.on('roll', handleRoll(io, socket));
 		    });
 
 		    	    

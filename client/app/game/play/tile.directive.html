@@ -1,0 +1,5 @@
+<div class="ct-game-board-tile">{{game.tileset.tiles[tileIndex].name}}
+	<ul>
+		<li ng-repeat="player in game.playerStates" ng-show="player.position === {{tileIndex}}">{{player.name}}</li>
+	</ul>
+</div>

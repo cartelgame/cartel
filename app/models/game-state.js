@@ -18,6 +18,7 @@ var GameState = new Schema({
     playerIndex: {type: Number, default: 0},
     // Tileset stored by reference
     tileset: { type: Schema.Types.ObjectId, ref: 'TileSet' }
+    // tileset: String,	// Manual reference since automatic references don't seem to be working properly
 });
 
 GameState.methods.getPlayerStateByName = function findSimilarType (name) {
