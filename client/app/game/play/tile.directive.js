@@ -22,5 +22,17 @@
 		$scope.$watch('game', function(newValue, oldValue) {
 			console.log('gello');
 		});
+
+		$scope.isCornerTile = function() {
+			return $scope.tileIndex % 10 === 0;
+		}
+
+		$scope.isVerticalTile = function() {
+			return $scope.tileIndex < 10 || ($scope.tileIndex > 20 && $scope.tileIndex < 30);
+		}
+
+		$scope.isHorizontalTile = function() {
+			return !$scope.isCornerTile() && !$scope.isVerticalTile();
+		}
 	}
 })();
