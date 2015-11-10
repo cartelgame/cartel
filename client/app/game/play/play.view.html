@@ -1,15 +1,13 @@
-Game started!
-<div>
-	Players:
-	<ul>
-		<li ng-repeat="player in game.playerStates" ng-class="{ready: player.available}">
-			{{player.name}}, {{player.available}}
-			<button ng-show="isOwner && player.name != user" ng-click="kickUser(player.name)" class="btn btn-danger btn-xs">kick</button>
-		</li>
-	</ul>
+<div class="container">
+	<ct-board class="col-sm-10"></ct-board>
+	<div class="col-sm-2">
+		<div ng-repeat="player in game.playerStates" ng-class="{'ct-player-turn': game.playerIndex === $index}">
+			<h4>{{player.name}}</h4>
+			${{player.cash}}
+		</div>
+		<button ng-show="canRoll()" ng-click="roll()" class="btn btn-danger">Roll</button>
+		<button ng-show="game.turnState === 1 && isMyTurn()" ng-click="endTurn()" class="btn btn-danger">End Turn</button>
+		<button ng-show="isOwner" ng-click="deleteGame()" class="btn btn-danger">Delete</button>
+	</div>
+	
 </div>
-<div>
-	<ct-board></ct-board>
-</div>
-<button ng-show="isMyTurn()" ng-click="roll()" class="btn btn-danger">WTF?</button>
-<button ng-show="isOwner" ng-click="deleteGame()" class="btn btn-danger">Delete</button>

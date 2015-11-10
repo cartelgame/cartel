@@ -16,10 +16,15 @@ var GameState = new Schema({
     playerStates: [PlayerState.schema],
     // TODO: should pick random player to start
     playerIndex: {type: Number, default: 0},
+    // Which stage of the turn we are on - 0: turn start (pre-roll), 1: turn end (post-roll)
+    turnState: {type: Number, default: 0},
     // Tileset stored by reference
     tileset: { type: Schema.Types.ObjectId, ref: 'TileSet' }
     // tileset: String,	// Manual reference since automatic references don't seem to be working properly
 });
+
+GameState.statics.TURN_START = 0;
+GameState.statics.TURN_END = 1;
 
 GameState.methods.getPlayerStateByName = function findSimilarType (name) {
     return this.playerStates.filter(function(playerState) {

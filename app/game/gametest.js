@@ -81,11 +81,12 @@ async.waterfall([
 
 		for (var i = 0; i < 10; i++) {
 			for (var j = 0; j < state.playerStates.length; j++) {
-				var res = CartelGame.next(state);
+				var res = CartelGame.roll(state);
 				var playerState = state.playerStates[j];
 				if (CartelGame.canPurchaseTile(state, playerState.position, playerState)) {
 					CartelGame.purchaseTile(state, playerState.position, playerState);
 				}
+				CartelGame.endTurn();
 			}
 		};
 

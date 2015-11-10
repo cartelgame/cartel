@@ -1,4 +1,5 @@
 var dice = require('./dice');
+var GameState = require('../models/game-state');
 
 // Private functions
 var iteratePlayers = function(state, visitor) {
@@ -19,7 +20,12 @@ var test = function() {
 
 // Public functions
 module.exports = {
-	next: function(state) {
+	roll: function(state) {
+		if (state.turnState != 0) {
+			// Can't roll if we're in the wrong state
+			return;
+		}
+
 		var result = [];
 		var tiles = state.tileset.tiles;
 
@@ -44,15 +50,27 @@ module.exports = {
 		}
 
 		// move to the next player
-		state.playerIndex++;
-		if (state.playerIndex == state.playerStates.length) {
-			state.playerIndex = 0;
-		}
+		// state.playerIndex++;
+		// if (state.playerIndex == state.playerStates.length) {
+		// 	state.playerIndex = 0;
+		// }
+
+		// Update
+		state.turnState = GameState.TURN_END;
 
 		// push results
 		result.push({'dice': diceValues});
 
 		return result;
+	},
+
+	endTurn: function(state) {
+		state.turnState = GameState.TURN_START;
+		// move to the next player
+		state.playerIndex++;
+		if (state.playerIndex == state.playerStates.length) {
+			state.playerIndex = 0;
+		}
 	},
 
 	getStateForPlayer: function(state, player) {

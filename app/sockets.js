@@ -159,15 +159,37 @@ function handleRoll(io, socket) {
 	    		}
 
 	    		if (game) {
-	    			TileSet.findOne({_id: game.tileset}, function(err, tileset) {
-	    				if (err) {
-	    					throw err;
-	    				}
-	    				CartelGame.next(game, tileset);
+	    			// TileSet.findOne({_id: game.tileset}, function(err, tileset) {
+	    			// 	if (err) {
+	    			// 		throw err;
+	    			// 	}
+	    				console.log(game);
+	    				CartelGame.roll(game);
 	    				game.save(function(err) {
 	    					io.sockets.in(socket.room).emit('state-updated', game);
 		    				// socket.to(socket.room).emit('state-updated', game);
 		    			});
+	    			// });
+	    		}
+	    	});
+	}
+}
+
+function handleEndTurn(io, socket) {
+	return function() {
+		// TODO: use waterfall
+		GameState.findOne({_id: socket.room, started: true, 'playerStates.name': socket.user.username})
+			.populate('tileset')
+			.exec(function(err, game) {
+	    		if (err) {
+	    			throw err;
+	    		}
+
+	    		if (game) {
+	    			CartelGame.endTurn(game);
+    				game.save(function(err) {
+    					io.sockets.in(socket.room).emit('state-updated', game);
+	    				// socket.to(socket.room).emit('state-updated', game);
 	    			});
 	    		}
 	    	});
@@ -234,6 +256,7 @@ module.exports = function(http) {
 		    	socket.on('chat-message', handleChatMessage(socket));
 		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
 		    	socket.on('roll', handleRoll(io, socket));
+		    	socket.on('end-turn', handleEndTurn(io, socket));
 		    });
 
 		    	    

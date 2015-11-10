@@ -65,8 +65,16 @@
 			}		
 		}
 
+		$scope.canRoll = function() {
+			return $scope.isMyTurn() && $scope.game.turnState === 0;
+		}
+
 		$scope.roll = function() {
 			SocketService.socket.emit('roll');
+		}
+
+		$scope.endTurn = function() {
+			SocketService.socket.emit('end-turn');
 		}
 
 		// Listen for when the user leaves the view

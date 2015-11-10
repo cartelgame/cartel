@@ -19,10 +19,6 @@
 	function TileController($scope) {
 		console.log($scope.game);
 
-		$scope.$watch('game', function(newValue, oldValue) {
-			console.log('gello');
-		});
-
 		$scope.isCornerTile = function() {
 			return $scope.tileIndex % 10 === 0;
 		}

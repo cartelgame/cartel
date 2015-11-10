@@ -83,6 +83,8 @@ alerts {
     /* flex-grow: 1; */
     width: 50px;
     height: 50px;
+    font-size: 9px;
+    text-align: center;
 }
 
 .ct-game-board-tile-hor {
@@ -116,4 +118,8 @@ alerts {
     /*background-color: blue;*/
     width: 70px;
     height: 70px;
+}
+
+.ct-player-turn {
+    background-color: yellow;
 }

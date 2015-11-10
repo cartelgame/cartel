@@ -47,7 +47,7 @@ router.route('/authenticate')
         };
         
         var token = jwt.sign(userInfo, securityConfig.secret, {
-            expiresIn: '1h' // expires in 24 hrs
+            // expiresIn: '48h' // expires in 24 hrs
         });
         
         console.log("Generated token " + token);
