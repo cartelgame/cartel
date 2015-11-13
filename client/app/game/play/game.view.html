@@ -5,8 +5,9 @@
 			<h4>{{player.name}}</h4>
 			${{player.cash}}
 		</div>
-		<button ng-show="canRoll()" ng-click="roll()" class="btn btn-danger">Roll</button>
-		<button ng-show="game.turnState === 1 && isMyTurn()" ng-click="endTurn()" class="btn btn-danger">End Turn</button>
+		<button ng-disabled="!canRoll()" ng-click="roll()" class="btn btn-success">Roll</button>
+		<button ng-disabled="game.turnState != 1 || !isMyTurn()" ng-click="endTurn()" class="btn btn-success">End Turn</button>
+		<button ng-disabled="!canBuyProperty()" class="btn btn-success">Buy Current Property</button>
 		<button ng-show="isOwner" ng-click="deleteGame()" class="btn btn-danger">Delete</button>
 	</div>
 </div>

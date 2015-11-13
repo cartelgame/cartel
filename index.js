@@ -17,20 +17,20 @@ mongoose.connect(configDB.url);
 // Setup defaut tileset
 async.waterfall([
 	function(callback) {
-		// TileSet.findOne({name: 'default'}, function(err, tileset) {
-		// 	if (err) {
-		// 		throw err;
-		// 	}
-		// 	if (tileset) {
-		// 		console.log("Default tileset already exists");
-		// 		return callback(null, false);
-		// 	} else {
+		TileSet.findOne({name: 'default'}, function(err, tileset) {
+			if (err) {
+				throw err;
+			}
+			if (tileset) {
+				console.log("Default tileset already exists");
+				return callback(null, false);
+			} else {
 				TileSet.remove({}, function() {
 					console.log("Cleared tilesets");
 					callback(null, true);
 				});
-		// 	}
-		// })
+			}
+		})
 	},
 	function(addTileset, callback) {
 		if (!addTileset) {

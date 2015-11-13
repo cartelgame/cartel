@@ -9,6 +9,24 @@
 
 		console.log('Authenticating socket in Play Controller');
 
+		// Socket functions
+		function socketGameDeleted(data) {
+			$window.alert('This game has been deleted - redirecting to the games list');
+			$location.path('/games');
+		}
+
+		function socketPlayerJoined(playerName) {
+			_.find($scope.game.playerStates, { name: playerName }).available = true;
+		}
+
+		function socketPlayerDisconnected(playerName) {
+			_.find($scope.game.playerStates, { name: playerName }).available = false;
+		}
+
+		function socketStateUpdated(gameState) {
+			$scope.game = gameState;
+		}
+
 		SocketAuthService.getAuthenticatedAsPromise()
 			.then(function success() {
 				console.log('Done authentications socket in Game Controller');
@@ -18,27 +36,15 @@
 			.then(function success(game) {
 				$scope.game = game;
 				// Find the state belonging to this player
-				$scope.playerState = _.find(game.playerStates, {name: $scope.user});
+				// $scope.playerState = _.find(game.playerStates, {name: $scope.user});
 				$scope.isOwner = (game.owner == $scope.user);
 
+				// Listen for socket messages
 				SocketService.socket.emit('player-available', $scope.gameId);
-
-				SocketService.socket.on('game-deleted', function(data) {
-					$window.alert('This game has been deleted - redirecting to the games list');
-					$location.path('/games');
-				});
-
-				SocketService.socket.on('player-joined', function(playerName) {
-					_.find($scope.game.playerStates, { name: playerName }).available = true;
-				});
-
-				SocketService.socket.on('player-disconnected', function(playerName) {
-					_.find($scope.game.playerStates, { name: playerName }).available = false;
-				});
-
-				SocketService.socket.on('state-updated', function(gameState) {
-					$scope.game = gameState;
-				});
+				SocketService.socket.on('game-deleted', socketGameDeleted);
+				SocketService.socket.on('player-joined', socketPlayerJoined);
+				SocketService.socket.on('player-disconnected', socketPlayerDisconnected);
+				SocketService.socket.on('state-updated', socketStateUpdated);
 			});
 
 		$scope.deleteGame = function() {
@@ -62,7 +68,7 @@
 				return false;
 			} else {
 				return $scope.game.playerStates[$scope.game.playerIndex].name === $scope.user;
-			}		
+			}
 		}
 
 		$scope.canRoll = function() {
@@ -75,6 +81,24 @@
 
 		$scope.endTurn = function() {
 			SocketService.socket.emit('end-turn');
+		}
+
+		$scope.canBuyProperty = function() {
+			if (!$scope.isMyTurn() || $scope.game.turnState != 1) {
+				// It's not my turn or turn state isn't right
+				return false;
+			}
+
+			var myState = _.find($scope.game.playerStates, {name: $scope.user});
+
+			var tile = $scope.game.tileset.tiles[myState.position];
+
+			if (!tile.purchasable) {
+				return false;
+			}
+			// TODO: find out if tile is owned by another player
+
+			return true;
 		}
 
 		// Listen for when the user leaves the view
