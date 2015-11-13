@@ -21,8 +21,8 @@
 				controller: 'LobbyController'
 			})
 			.when('/games/:gameId/play', {
-				templateUrl: 'app/game/play/play.view.html',
-				controller: 'PlayController'
+				templateUrl: 'app/game/play/game.view.html',
+				controller: 'GameController'
 			})
 			.otherwise({
 	        	redirectTo: '/login'

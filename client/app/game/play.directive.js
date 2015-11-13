@@ -6,11 +6,11 @@
 		return {
 			restrict: 'E',
 			templateUrl: 'app/game/play.directive.html',
-			controller: ['SocketService', 'SocketAuthService', '$scope', 'GameService', PlayController]
+			controller: ['SocketService', 'SocketAuthService', '$scope', 'GameService', GameController]
 		};
 	}
 
-	function PlayController(SocketService, SocketAuthService, $scope, GameService) {
+	function GameController(SocketService, SocketAuthService, $scope, GameService) {
 		console.log("Loading play");
 
 		SocketAuthService.getAuthenticatedAsPromise()

@@ -1,9 +1,9 @@
 (function() {
 	angular.module('cartel')
-		.controller('PlayController', ['$scope', 'GameService', '$location', '$routeParams', '$window', 'AuthService', 'SocketService',
-			'SocketAuthService', PlayController]);
+		.controller('GameController', ['$scope', 'GameService', '$location', '$routeParams', '$window', 'AuthService', 'SocketService',
+			'SocketAuthService', GameController]);
 
-	function PlayController($scope, GameService, $location, $routeParams, $window, AuthService, SocketService, SocketAuthService) {
+	function GameController($scope, GameService, $location, $routeParams, $window, AuthService, SocketService, SocketAuthService) {
 		$scope.gameId = $routeParams.gameId;
 		$scope.user = AuthService.getPlayerName();
 
