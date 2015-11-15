@@ -2,7 +2,6 @@ var express = require('express');
 var passport = require('passport');
 var User = require('./models/user');
 var GameState = require('./models/game-state');
-var PlayerState = require('./models/player-state');
 var TileSet = require('./models/tileset');
 var router = express.Router();
 var _ = require('lodash');
@@ -166,7 +165,7 @@ router.route('/games/:game_id')
 
                 // Add the user to the players list
                 if (!_.find(game.playerStates, {name: req.user.username})) {
-                    game.playerStates.push(new PlayerState({name: req.user.username, ready: false}));
+                    game.playerStates.push({name: req.user.username, ready: false});
                 }
 
                 // Persist the new players list

@@ -83,7 +83,7 @@
 			SocketService.socket.emit('end-turn');
 		}
 
-		$scope.canBuyProperty = function() {
+		$scope.canPurchaseProperty = function() {
 			if (!$scope.isMyTurn() || $scope.game.turnState != 1) {
 				// It's not my turn or turn state isn't right
 				return false;
@@ -97,8 +97,20 @@
 				return false;
 			}
 			// TODO: find out if tile is owned by another player
+			var found = false;
+			_.each($scope.game.playerStates, function(playerState) {
+				if (_.contains(playerState.ownedTiles, myState.position)) {
+					found = true;
+				}
+			});
 
-			return true;
+			return !found;
+		}
+
+		$scope.purchaseProperty = function() {
+			if ($scope.canPurchaseProperty()) {
+				SocketService.socket.emit('purchase-property');
+			}
 		}
 
 		// Listen for when the user leaves the view

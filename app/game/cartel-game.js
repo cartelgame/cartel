@@ -105,8 +105,8 @@ module.exports = {
 		return (!isOwnedAlready && tile.purchasable && playerState.cash > tile.cost);
 	},
 
-	purchaseTile: function(state, tile, playerState) {
-		playerState.add(tile);
-		playerState.cash -= tile.cost;
+	purchaseTile: function(state, tileIndex, playerState) {
+		playerState.ownedTiles.push(tileIndex);
+		playerState.cash -= state.tileset.tiles[tileIndex].cost;
 	}
 };

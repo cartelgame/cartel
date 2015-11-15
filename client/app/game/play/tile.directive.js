@@ -17,8 +17,6 @@
 	}
 
 	function TileController($scope) {
-		console.log($scope.game);
-
 		$scope.isCornerTile = function() {
 			return $scope.tileIndex % 10 === 0;
 		}

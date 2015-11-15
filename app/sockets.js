@@ -4,6 +4,7 @@ var GameState = require('./models/game-state');
 var TileSet = require('./models/tileset');
 var CartelGame = require('./game/cartel-game');
 var _ = require('lodash');
+var async = require('async');
 
 function handlePlayerDisconnectedGame(socket) {
 	return function() {
@@ -196,6 +197,46 @@ function handleEndTurn(io, socket) {
 	}
 }
 
+function handlePurchaseProperty(io, socket) {
+	return function() {
+		async.waterfall([
+			// Get the game
+			function(callback) {
+				GameState.findOne({_id: socket.room, started: true, 'playerStates.name': socket.user.username})
+					.populate('tileset')
+					.exec(function(err, gameState) {
+			    		if (err) {
+			    			callback(err);
+			    		}
+
+			    		if (gameState) {
+			    			callback(null, gameState);
+			    		} else {
+			    			callback(new Error('Game state not found'));
+			    		}
+			    	});
+			},
+			// Try and purchase the tile
+			function(gameState, callback) {
+				var playerState = _.find(gameState.playerStates, {name: socket.user.username});
+				if (CartelGame.canPurchaseTile(gameState, playerState.position, playerState)) {
+					CartelGame.purchaseTile(gameState, playerState.position, playerState);
+					gameState.save(function(err) {
+						io.sockets.in(socket.room).emit('state-updated', gameState);
+						callback(err);
+					});
+				} else {
+					callback();
+				}
+			}
+		], function(err) {
+			if (err) {
+				throw err;
+			}
+		});
+	}
+}
+
 module.exports = function(http) {
 	var io = require('socket.io')(http);
 
@@ -256,6 +297,7 @@ module.exports = function(http) {
 		    	socket.on('chat-message', handleChatMessage(socket));
 		    	socket.on('disconnect', handlePlayerDisconnectedGame(socket));
 		    	socket.on('roll', handleRoll(io, socket));
+		    	socket.on('purchase-property', handlePurchaseProperty(io, socket));
 		    	socket.on('end-turn', handleEndTurn(io, socket));
 		    });
 

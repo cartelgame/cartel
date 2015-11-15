@@ -95,7 +95,7 @@ async.waterfall([
 			console.log("Saved game state");
 			console.log(JSON.stringify(state, null, 4));
 			callback(null, state);
-		});		
+		});	
 	},
 
 	function(state, callback) {
