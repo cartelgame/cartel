@@ -96,10 +96,11 @@
 			if (!tile.purchasable) {
 				return false;
 			}
-			// TODO: find out if tile is owned by another player
+			// Find out if tile is owned by another player
 			var found = false;
 			_.each($scope.game.playerStates, function(playerState) {
-				if (_.contains(playerState.ownedTiles, myState.position)) {
+				var result = _.find(playerState.ownedTiles, {index: myState.position});
+				if (result) {
 					found = true;
 				}
 			});

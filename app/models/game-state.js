@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-// var PlayerState = require('./player-state');
 var TileSet = require('./tileset');
 
 var GameState = new Schema({
@@ -12,12 +11,15 @@ var GameState = new Schema({
     	playerName: String,
     	message: String
     }],
-    // TODO: should player states be nested or references? Are the used outside of a game state?
     playerStates: [{
         name: String,
         position: {type: Number, default: 0},
         // References to owned tiles
-        ownedTiles: [Number],
+        ownedTiles: [{
+            index: Number,
+            houses: {type: Number, default: 0},
+            hotel: {type: Boolean, default: false}
+        }],
         cash: {type: Number, default: 1500},
         // Whether the player is ready to start the game from the lobby
         ready: Boolean,
@@ -31,16 +33,35 @@ var GameState = new Schema({
     turnState: {type: Number, default: 0},
     // Tileset stored by reference
     tileset: { type: Schema.Types.ObjectId, ref: 'TileSet' }
-    // tileset: String,	// Manual reference since automatic references don't seem to be working properly
 });
 
 GameState.statics.TURN_START = 0;
 GameState.statics.TURN_END = 1;
 
-GameState.methods.getPlayerStateByName = function findSimilarType (name) {
-    return this.playerStates.filter(function(playerState) {
+GameState.methods.getPlayerStateByName = function(name) {
+    var result = this.playerStates.filter(function(playerState) {
         return playerState.name === name;
     }).pop();
+    if (result) {
+        return result;
+    }
+    return null;
 };
+
+GameState.methods.getCurrentPlayerState = function() {
+    return this.playerStates[this.playerIndex];
+}
+
+GameState.methods.getTileOwner = function(tileIndex) {
+    for (var i = 0; i < this.playerStates.length; i++) {
+        var otherPlayerState = this.playerStates[i];
+        for (var j = 0; j < otherPlayerState.ownedTiles.length; j++) {
+            if (otherPlayerState.ownedTiles[j].index === tileIndex) {
+                return otherPlayerState;
+            }
+        }
+    }
+    return null;
+}
 
 module.exports = mongoose.model('GameState', GameState);

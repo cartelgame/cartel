@@ -1,5 +1,6 @@
 var dice = require('./dice');
 var GameState = require('../models/game-state');
+var _ = require('lodash');
 
 // Private functions
 var iteratePlayers = function(state, visitor) {
@@ -8,19 +9,9 @@ var iteratePlayers = function(state, visitor) {
 	}
 }
 
-var test = function() {
-
-	this.iteratePlayers(
-		state,
-		function(player) {
-			console.log(player.name);
-		}
-	);
-}
-
 // Public functions
 module.exports = {
-	roll: function(state) {
+	roll: function(state, overrideDice) {
 		if (state.turnState != 0) {
 			// Can't roll if we're in the wrong state
 			return;
@@ -29,31 +20,35 @@ module.exports = {
 		var result = [];
 		var tiles = state.tileset.tiles;
 
-		var diceValues = dice.roll();
+		var diceValues = (overrideDice) ? overrideDice.roll() : dice.roll();
 
 		var diceValue = diceValues[0] + diceValues[1];
 
+		var playerState = state.playerStates[state.playerIndex];
+
 		for (var i = 0; i < diceValue; i++) {
 			// move one forward
-			state.playerStates[state.playerIndex].position += 1;
+			playerState.position += 1;
 
 			// reset to position zero
-			if (state.playerStates[state.playerIndex].position == tiles.length) {
-				state.playerStates[state.playerIndex].position = 0;
+			if (playerState.position == tiles.length) {
+				playerState.position = 0;
 			}
 
 			//does the tile have a value when landing
-			var index = state.playerStates[state.playerIndex].position;
+			var index = playerState.position;
 			if (tiles[index].visitingValue) {
-				state.playerStates[state.playerIndex].cash += 200;
+				playerState.cash += 200;
 			}
 		}
 
-		// move to the next player
-		// state.playerIndex++;
-		// if (state.playerIndex == state.playerStates.length) {
-		// 	state.playerIndex = 0;
-		// }
+		// TODO: get final position
+		// TODO: check if the tile is owned by another player and charge accordingly
+		var owner = state.getTileOwner(playerState.position);
+		if (owner && owner.name != playerState.name) {
+			var rent = this.getRentValue(state, playerState.position);
+			playerState.cash -= rent;
+		}
 
 		// Update
 		state.turnState = GameState.TURN_END;
@@ -65,6 +60,10 @@ module.exports = {
 	},
 
 	endTurn: function(state) {
+		// Can't change state if 
+		if (state.turnState == GameState.TURN_START) {
+			return;
+		}
 		state.turnState = GameState.TURN_START;
 		// move to the next player
 		state.playerIndex++;
@@ -81,32 +80,44 @@ module.exports = {
 		}
 	},
 
-	// TODO: this method should exist on GameState
+	// TODO: this method should exist on GameState?
 	getCurrentTileForPlayer: function(state, player) {
 		var tiles = state.tileset.tiles;
 		return tiles[this.getStateForPlayer(state, player).position];
 	},
 
-	// TODO: this method should exist on GameState
+	// TODO: this method should exist on GameState?
 	canPurchaseTile: function(state, tileIndex, playerState) {
-		var isOwnedAlready = false;
+		var currentOwner = state.getTileOwner(tileIndex);
 		var tile = state.tileset.tiles[tileIndex];
-
-		for (var i = 0; i < state.playerStates.length; i++) {
-			var otherPlayerState = state.playerStates[i];
-			for (var j = 0; j < otherPlayerState.ownedTiles.length; j++) {
-				if (otherPlayerState.ownedTiles[j] === tileIndex) {
-					isOwnedAlready = true;
-					break;
-				}
-			}
-		}
 
 		return (!isOwnedAlready && tile.purchasable && playerState.cash > tile.cost);
 	},
 
-	purchaseTile: function(state, tileIndex, playerState) {
-		playerState.ownedTiles.push(tileIndex);
+	purchaseTile: function(state, playerState, tileIndex) {
+		var playerState = (playerState) ? playerState : state.playerStates[state.playerIndex];
+		var tileIndex = (tileIndex) ? tileIndex : playerState.position;
+
+		playerState.ownedTiles.push({index: tileIndex});
 		playerState.cash -= state.tileset.tiles[tileIndex].cost;
+	},
+
+	getRentValue: function(state, tileIndex) {
+		var owner = state.getTileOwner(tileIndex);
+		var ownedTile = _.find(owner.ownedTiles, {index: tileIndex});
+
+		if (!ownedTile) {
+			return 0;
+		}
+
+		var tile = state.tileset.tiles[tileIndex];
+
+		if (ownedTile.hotel == true) {
+			// Has a hotel
+			return tile.rents[4];
+		} else {
+			// Has no house or houses
+			return tile.rents[ownedTile.houses];
+		}
 	}
 };
