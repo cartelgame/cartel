@@ -87,11 +87,14 @@ module.exports = {
 	},
 
 	// TODO: this method should exist on GameState?
-	canPurchaseTile: function(state, tileIndex, playerState) {
+	canPurchaseTile: function(state, playerState, tileIndex) {
+		var playerState = (playerState) ? playerState : state.playerStates[state.playerIndex];
+		var tileIndex = (tileIndex) ? tileIndex : playerState.position;
+		
 		var currentOwner = state.getTileOwner(tileIndex);
 		var tile = state.tileset.tiles[tileIndex];
 
-		return (!isOwnedAlready && tile.purchasable && playerState.cash > tile.cost);
+		return (!currentOwner && tile.purchasable && playerState.cash > tile.cost);
 	},
 
 	purchaseTile: function(state, playerState, tileIndex) {

@@ -220,7 +220,7 @@ function handlePurchaseProperty(io, socket) {
 			function(gameState, callback) {
 				var playerState = _.find(gameState.playerStates, {name: socket.user.username});
 				if (CartelGame.canPurchaseTile(gameState, playerState, playerState.position)) {
-					CartelGame.purchaseTile(gameState, playerState.position, playerState);
+					CartelGame.purchaseTile(gameState, playerState, playerState.position);
 					gameState.save(function(err) {
 						io.sockets.in(socket.room).emit('state-updated', gameState);
 						callback(err);

@@ -2,7 +2,7 @@ var GameState = require('../app/models/game-state');
 var testSetup = require('./support/modules/setup.js');
 
 describe("game-state", function() {
-	describe("get player state by name", function() {
+	describe("getPlayerStateByName", function() {
 		var gameState = testSetup.createGameState();
 
 		it("gets an existing player state", function() {
@@ -23,8 +23,8 @@ describe("game-state", function() {
 
 	});
 
-	describe("get tile owner", function() {
-		var gameState = testSetup.createGameState();
+	describe("getTileOwner", function() {
+		var gameState = testSetup.createGameStateWithOwnedTiles();
 
 		it("gets the owner for owned tiles", function() {
 			var owner = gameState.getTileOwner(7);
@@ -34,7 +34,7 @@ describe("game-state", function() {
 			expect(owner).toBe(gameState.playerStates[1]);
 
 			owner = gameState.getTileOwner(20);
-			expect(owner).toBe(gameState.playerStates[2]);
+			expect(owner.name).toBe(gameState.playerStates[2].name);
 		});
 
 		it("returns null for non-owned tiles", function() {

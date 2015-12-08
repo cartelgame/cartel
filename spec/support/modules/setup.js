@@ -63,6 +63,22 @@ module.exports = {
 		return new GameState({
 			playerStates: [{
 				name: 'steve',
+				cash: 1500
+			}, {
+				name: 'jon',
+				cash: 1500
+			}, {
+				name: 'mikey',
+				cash: 1500
+			}],
+			tileset: this.createTestTileset()
+		});
+	},
+
+	createGameStateWithOwnedTiles: function() {
+		return new GameState({
+			playerStates: [{
+				name: 'steve',
 				cash: 1500,
 				ownedTiles: [{
 					index: 7
