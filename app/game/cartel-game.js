@@ -11,6 +11,13 @@ var iteratePlayers = function(state, visitor) {
 
 // Public functions
 module.exports = {
+
+	/**
+	 * Roll the dice for the current player, taking rent when they land on an owned
+	 * property
+	 * @param  {GameState} 	state    		the game state object
+	 * @param  {dice} 		overrideDice 	used for testing with fixed dice
+	 */
 	roll: function(state, overrideDice) {
 		if (state.turnState != 0) {
 			// Can't roll if we're in the wrong state
@@ -42,12 +49,12 @@ module.exports = {
 			}
 		}
 
-		// TODO: get final position
-		// TODO: check if the tile is owned by another player and charge accordingly
+		// Check if the tile is owned by another player and charge accordingly
 		var owner = state.getTileOwner(playerState.position);
 		if (owner && owner.name != playerState.name) {
 			var rent = this.getRentValue(state, playerState.position);
 			playerState.cash -= rent;
+			owner.cash += rent;
 		}
 
 		// Update
@@ -59,6 +66,10 @@ module.exports = {
 		return result;
 	},
 
+	/**
+	 * End the turn for the current player
+	 * @param  {GameState} state the game state object
+	 */
 	endTurn: function(state) {
 		// Can't change state if 
 		if (state.turnState == GameState.TURN_START) {

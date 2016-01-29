@@ -8,11 +8,10 @@
 			var listenForAuthentication = function() {
 				console.log('listening for socket authentication');
 				var listenDeferred = $q.defer();
-				var authCallback = function() {
+				SocketService.socket.on('authenticated', function() {
 					console.log('listening for socket authentication - done');
 					listenDeferred.resolve(true);
-				};
-				SocketService.socket.on('authenticated', authCallback);
+				});
 				return listenDeferred.promise;
 			};
 

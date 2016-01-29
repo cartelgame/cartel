@@ -7,18 +7,16 @@
 
         (function initController() {
             // reset login status
-            AuthService.ClearCredentials();
+            AuthService.clearCredentials();
         })();
 
         $scope.login = function() {
             $scope.dataLoading = true;
             AuthService.Login($scope.user)
-                .then(function(response) {
-                    // Success
+                .then(function success() {
                     $location.path('/games');
-                }, function(response) {
-                    // Failure response
-                    $scope.error = response.message;
+                }, function failure(err) {
+                    $scope.error = err.message;
                     $scope.dataLoading = false;
                 });
         };

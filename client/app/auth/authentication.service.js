@@ -1,8 +1,8 @@
 (function() {
 	angular.module('cartel')
-		.service('AuthService', ['$http', '$rootScope', '$timeout', '$base64', '$localStorage', '$q', AuthService]);
+		.service('AuthService', ['$http', '$localStorage', '$q', AuthService]);
 
-	function AuthService($http, $rootScope, $timeout, $base64, $localStorage, $q) {
+	function AuthService($http, $localStorage, $q) {
 		this.Login = function(user) {
 			var deferred = $q.defer();
 
@@ -34,7 +34,7 @@
 			return deferred.promise;
 		};
 
-		this.ClearCredentials = function() {
+		this.clearCredentials = function() {
 			delete $localStorage.token;
 			delete $localStorage.playerName;
 		};

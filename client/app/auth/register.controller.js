@@ -6,14 +6,12 @@
         $scope.register = function() {
             $scope.dataLoading = true;
             UserService.Create($scope.user)
-                .then(function (response) {
-                    // We've successfully registered the user, so now let's login
+                .then(function success() {
                     AuthService.Login($scope.user)
                         .then(function() {
                             $location.path('/games');
                         });
-                }, function(response) {
-                    // Failure
+                }, function failure(response) {
                     // TODO: handle failure
                     $scope.dataLoading = false;
                 });
