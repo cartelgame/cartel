@@ -12,7 +12,7 @@ var TileSet = new Schema({
         hotelPrice: Number,
         group: String,
         // [noHouses, oneHouse, twoHouses, threeHouses, hotel]
-        rents: [Number]
+        rents: [Number],
         // rents: [{
         //     empty: Number,
         //     oneHouse: Number.
@@ -20,6 +20,7 @@ var TileSet = new Schema({
         //     threeHouse: Number,
         //     hotel: Number
         // }]
+        imageName: String
     }]
 });
 

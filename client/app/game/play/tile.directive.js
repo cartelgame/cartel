@@ -8,7 +8,7 @@
 			templateUrl: 'app/game/play/tile.directive.html',
 			// transclude: true,
 			scope: true,
-			controller: ['$scope', TileController],
+			controller: ['$scope','$timeout', TileController],
 			link: function(scope, elem, attrs) {
 				// Get the index attribute and attach it to the scope
 				scope.tileIndex = attrs.index;
@@ -16,7 +16,8 @@
 		};
 	}
 
-	function TileController($scope) {
+	function TileController($scope,$timeout) {		
+
 		$scope.isCornerTile = function() {
 			return $scope.tileIndex % 10 === 0;
 		}
@@ -27,6 +28,22 @@
 
 		$scope.isHorizontalTile = function() {
 			return !$scope.isCornerTile() && !$scope.isVerticalTile();
+		}
+
+		var intervalCountdown;
+
+		$scope.mouseOver = function(tile){
+			$timeout.cancel(intervalCountdown);
+			$scope.gameboard.imagePath = "assets/img/"+tile.imageName;
+		}
+
+		$scope.mouseOut = function(event){
+			
+			if(!angular.element(event.toElement).hasClass("ct-game-board-tile")){
+				intervalCountdown = $timeout(function(){
+					$scope.gameboard.imagePath = $scope.gameboard.originalPath;	
+				},1000);
+			}
 		}
 	}
 })();

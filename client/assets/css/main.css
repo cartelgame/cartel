@@ -62,7 +62,7 @@ alerts {
 }
 
 .ct-game-board {
-    width: 590px;
+    width: 745px;
     /* height: 500px; */
     background-color: yellow;
     display: flex;
@@ -85,16 +85,27 @@ alerts {
     height: 50px;
     font-size: 9px;
     text-align: center;
+    background-image: url(../img/kingslanding.jpg);
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: auto 50px;
+
+}
+
+.ct-game-board-tile-title {
+    text-shadow: #000 0px 0px 1px;
+    color: white;
+    font-size:12px;
 }
 
 .ct-game-board-tile-hor {
-    width: 70px;
-    height: 50px;
+    width: 80px;
+    height: 65px;
 }
 
 .ct-game-board-tile-ver {
-    width: 50px;
-    height: 70px;
+    width: 65px;
+    height: 80px;
 }
 
 .ct-game-board-col {
@@ -107,6 +118,12 @@ alerts {
 
 .ct-game-board-middle {
     flex-grow: 9;
+    background-image: url(../img/cartel.jpg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: grey;
+    border: solid;
+    background-position: center;
 }
 
 .ct-game-board-middlerow {
@@ -116,8 +133,9 @@ alerts {
 
 .ct-game-board-corner {
     /*background-color: blue;*/
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
+    background-size: contain;
 }
 
 .ct-player-turn {

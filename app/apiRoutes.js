@@ -182,4 +182,62 @@ router.route('/games/:game_id')
         res.status(200).send("Game deleted successfully");
     });
 
+//don't need to be authenticated to reset default tilecache?
+router.route('/resetTileSet')
+    .get(function(req,res){
+        TileSet.remove({}, function() {
+            console.log("Cleared tilesets");
+        });
+        var tileset = new TileSet({
+                name: "default",
+                tiles: [
+                    {name: 'Go!',                       visitingValue: 200, purchasable: false,     imageName:"Go.png"},
+                    {name: 'Kokiri Forest',             purchasable: true, cost: 50,    group: 'a', imageName:"kokiri_Forest.jpg"},
+                    {name: 'Treasure Chest',            purchasable: false, cost: 0,    group: '1', imageName:"Treasure_Chest.png"},
+                    {name: 'Sacred Grove',              purchasable: true, cost: 50,    group: 'a', imageName:"sacredgrove.jpg"},
+                    {name: 'Ganondorf',                 purchasable: false, visitingValue: -200,    imageName:"ganondorf.png"},
+                    {name: 'Lost Woods South',          purchasable: true, cost: 200,   group: 'z', imageName:"lostwoods1.jpg"},
+                    {name: 'Koopa Village',             purchasable: true, cost: 80,    group: 'b', imageName:"koopavillage.jpg"},
+                    {name: 'Lucky Block',               purchasable: false, cost: 0,    group: '2', imageName:"question.png"},
+                    {name: 'Mario\'s House',            purchasable: true, cost: 100,   group: 'b', imageName:"marioshouse.jpg"},
+                    {name: 'Wario\'s Woods',            purchasable: true, cost: 100,   group: 'b', imageName:"wariowoods.jpg"},
+                    {name: 'Jail',                      purchasable: false, cost: 0,    group: 'y', imageName:"jail.jpg"},
+                    {name: 'Luigi\'s Mansion',          purchasable: true, cost: 100,   group: 'c', imageName:"luigismansion.jpg"},
+                    {name: 'Princess Peach\'s Castle',  purchasable: true, cost: 100,   group: 'c', imageName:"pincesspeachcastle.png"},
+                    {name: 'Mushroom Kingdom',          purchasable: true, cost: 120,   group: 'c', imageName:"mushroomkingdom.png"},
+                    {name: 'Rainbow Road',              purchasable: true, cost: 120,   group: 'c', imageName:"rainbowroad.jpg"},
+                    {name: 'Lost Woods East',           purchasable: true, cost: 200,   group: 'z', imageName:"lostwoods2.jpg"},
+                    {name: 'Lighthouse',                purchasable: true, cost: 120,   group: 'd', imageName:"lighthouse.png"},
+                    {name: 'Treasure Chest',            purchasable: false, cost: 0,    group: '1', imageName:"Treasure_Chest.png"},
+                    {name: 'Welcome to Rapture',        purchasable: true, cost: 120,   group: 'd', imageName:"rapture.jpg"},                   
+                    {name: 'Fontaine Futuristics',      purchasable: true, cost: 150,   group: 'd', imageName:"fontainfuturistics.png"},
+                    {name: 'Pub',                       purchasable: false, cost: 0,    group: 'w', imageName:"Beer_Sprite.png"},
+                    {name: 'Finkton',                   purchasable: true, cost: 150,   group: 'e', imageName:"finkton.jpg"},
+                    {name: 'Lucky Block',               purchasable: false, cost: 0,    group: '2', imageName:"question.png"},
+                    {name: 'Comstock House',            purchasable: true, cost: 180,   group: 'e', imageName:"comstock.png"},
+                    {name: 'Columbia',                  purchasable: true, cost: 180,   group: 'e', imageName:"columbia.png"},
+                    {name: 'Lost Woods North',          purchasable: true, cost: 200,   group: 'z', imageName:"lostwoods3.jpg"},
+                    {name: 'Meereen',                   purchasable: true, cost: 180,   group: 'f', imageName:"meereen.jpg"},
+                    {name: 'Yunkai',                    purchasable: true, cost: 180,   group: 'f', imageName:"yunkai.png"},
+                    {name: 'Volantis',                  purchasable: true, cost: 200,   group: 'f', imageName:"volantis.jpg"},
+                    {name: 'King\'s Landing',           purchasable: true, cost: 200,   group: 'f', imageName:"kingslanding.jpg"},
+                    {name: 'Go To Jail',                purchasable: true, cost: 200,   group: 'f', imageName:"kokiri_Forest.jpg"},
+                    {name: 'Treasure Chest',            purchasable: false, cost: 0,    group: '1', imageName:"Treasure_Chest.png"},
+                    {name: 'Riverrun',                  purchasable: true, cost: 200,   group: 'g', imageName:"riverrun.jpg"},
+                    {name: 'Winterfell',                purchasable: true, cost: 200,   group: 'g', imageName:"winterfell.png"},
+                    {name: 'Castle Black',              purchasable: true, cost: 200,   group: 'g', imageName:"castleblack.jpg"},
+                    {name: 'Lost Woods West',           purchasable: true, cost: 200,   group: 'z', imageName:"lostwoods4.jpg"},
+                    {name: 'Lucky Block',               purchasable: false, cost: 0,    group: '2', imageName:"question.png"},
+                    {name: 'Hyrule Castle',             purchasable: true, cost: 250,   group: 'h', imageName:"hyrulecastle.png"},
+                    {name: 'Ganon',                     purchasable: false, visitingValue: -200,    imageName:"ganon.png"},
+                    {name: 'Temple of Time',            purchasable: true, cost: 250,   group: 'h', imageName:"templeoftime.jpg"}
+                ]
+            });
+
+            tileset.save(function() {
+                //console.log("Saved tileset " + tileset);
+                res.send("Success");
+            });
+    });
+
 module.exports = router;

@@ -1,5 +1,7 @@
-<div class="ct-game-board-tile" ng-class="{'ct-game-board-corner': isCornerTile(), 'ct-game-board-tile-ver':isVerticalTile(), 'ct-game-board-tile-hor':isHorizontalTile()}">
-{{game.tileset.tiles[tileIndex].name}}
+<div class="ct-game-board-tile" style="background-image: url(assets/img/{{game.tileset.tiles[tileIndex].imageName}})" ng-class="{'ct-game-board-corner': isCornerTile(), 'ct-game-board-tile-ver':isVerticalTile(), 'ct-game-board-tile-hor':isHorizontalTile()}" data-ng-mouseenter="mouseOver(game.tileset.tiles[tileIndex])" data-ng-mouseleave="mouseOut($event)">
+<label class="ct-game-board-tile-title">
+	<strong>{{game.tileset.tiles[tileIndex].name}}</strong>
+</label>
 	<ul>
 		<li ng-repeat="player in game.playerStates" ng-show="player.position === {{tileIndex}}">{{player.name}}</li>
 	</ul>

@@ -1,8 +1,8 @@
 (function() {
 	angular.module('cartel')
-		.controller('LoginController', ['$location', 'AuthService', '$scope', '$alert', LoginController]);
+		.controller('LoginController', ['$location', 'AuthService', '$scope', '$alert','$http', LoginController]);
 
-	function LoginController($location, AuthService, $scope, $alert) {
+	function LoginController($location, AuthService, $scope, $alert,$http) {
 		console.log("Login Controller");
 
         (function initController() {
@@ -21,10 +21,15 @@
                 });
         };
 
-        $scope.alertTest = function() {
+        $scope.resetTileSet = function() {
+            $http.get('/api/resetTileSet').then(function(response){
+                onError(response.data);
+            },onError);            
+        }
+        function onError(error){
             var myAlert = $alert({
                 title: 'Holy guacamole!', 
-                content: 'Best check yo self, you\'re not looking too good.', 
+                content: error, 
                 placement: 'top-right', 
                 type: 'info', 
                 show: true,
